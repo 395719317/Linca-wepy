@@ -1,0 +1,263 @@
+首页顶部滚动广告
+https://sujiefs.com//api/adverts/list?sign=a521c89afe263f493dcd2c56846b7d58&time=20190226101520
+{
+    "reason": "",
+    "code": "0",
+    "list": [
+        {
+            "advertUrl": "/pages/home_detail?code=020",
+            "createTime": {
+                "date": 28,
+                "day": 4,
+                "hours": 14,
+                "minutes": 11,
+                "month": 11,
+                "nanos": 0,
+                "seconds": 38,
+                "time": 1514441498000,
+                "timezoneOffset": -480,
+                "year": 117
+            },
+            "id": "2c9257a1609b12a301609bbf5e790169",
+            "isdeleted": 0,
+            "limitFowards": 0,
+            "limitPrice": 0,
+            "locationFlag": 1,
+            "picUrl": "http://sujiefs.com/upload/images/20180319/201803191442069389248.jpg",
+            "presentAmout": 0,
+            "promoDesc": "",
+            "promoPicUrl": "",
+            "promoTips": "",
+            "sort": 5,
+            "status": 1,
+            "title": "嘉年华",
+            "type": 1,
+            "updateTime": {
+                "date": 9,
+                "day": 6,
+                "hours": 12,
+                "minutes": 24,
+                "month": 5,
+                "nanos": 0,
+                "seconds": 50,
+                "time": 1528518290000,
+                "timezoneOffset": -480,
+                "year": 118
+            }
+        }
+    ]
+}
+
+
+
+底部发现推荐商品
+https://sujiefs.com//api/mall/discoverList?page=1&size=10&sign=a4a00c9b921fdcf782fc3726b1224247&time=20190226111558
+{
+    "reason": "",
+    "code": "0",
+    "list": [
+        {
+            "code": "022",
+            "logo": "http://sujiefs.com/upload/images/20181107/201811071529292978067.jpg",
+            "id": "2c9257a16126d14701612b52808100d6",
+            "attrs": [
+                {
+                    "attrValList": [
+                        {
+                            "attrName": "品牌",
+                            "attrNameId": 215,
+                            "attrVal": "素洁",
+                            "id": 558
+                        }
+                    ],
+                    "attrName": {
+                        "attrName": "品牌",
+                        "categoryCode": "022",
+                        "id": 215
+                    }
+                },
+                {
+                    "attrValList": [
+                        {
+                            "attrName": "年份季节",
+                            "attrNameId": 216,
+                            "attrVal": "2018秋季",
+                            "id": 559
+                        }
+                    ],
+                    "attrName": {
+                        "attrName": "年份季节",
+                        "categoryCode": "022",
+                        "id": 216
+                    }
+                }
+            ]
+        },
+        {
+            "code": "021",
+            "logo": "http://sujiefs.com/upload/images/20180319/201803191401583397599.jpg",
+            "id": "2c9257a160e0cb1c0160ee3562e0024e",
+            "attrs": [
+                {
+                    "attrValList": [
+                        {
+                            "attrName": "品牌",
+                            "attrNameId": 211,
+                            "attrVal": "素洁",
+                            "id": 554
+                        }
+                    ],
+                    "attrName": {
+                        "attrName": "品牌",
+                        "categoryCode": "021",
+                        "id": 211
+                    }
+                },
+                {
+                    "attrValList": [
+                        {
+                            "attrName": "年份季节",
+                            "attrNameId": 212,
+                            "attrVal": "2018全新升级版",
+                            "id": 555
+                        }
+                    ],
+                    "attrName": {
+                        "attrName": "年份季节",
+                        "categoryCode": "021",
+                        "id": 212
+                    }
+                }
+            ]
+        }
+    ]
+}
+
+
+
+
+
+首页的详情页
+（比如点击首页广告跳转到详情页）
+https://sujiefs.com//api/home/hostGoodsList?page=1&size=10&cateCode=020&sort=1&skuval=&sign=a4a00c9b921fdcf782fc3726b1224247&time=20190226111558
+{
+    "reason": "",
+    "code": "0",
+    "page_total": 3,
+    "category": {
+        "code": "020",
+        "name": "春夏新品",
+        "logo": "http://sujiefs.com/upload/images/20180308/201803081427506631167.jpg",
+        "id": "2c9257a15f37e4320160014d4dfc1650",
+        "attrs": [
+            {
+                "attrValList": [
+                    {
+                        "attrName": "品牌",
+                        "attrNameId": 208,
+                        "attrVal": "素洁",
+                        "id": 551
+                    }
+                ],
+                "attrName": {
+                    "attrName": "品牌",
+                    "categoryCode": "020",
+                    "id": 208
+                }
+            },
+            {
+                "attrValList": [
+                    {
+                        "attrName": "年份季节",
+                        "attrNameId": 209,
+                        "attrVal": "2017冬季",
+                        "id": 552
+                    }
+                ],
+                "attrName": {
+                    "attrName": "年份季节",
+                    "categoryCode": "020",
+                    "id": 209
+                }
+            }
+        ]
+    },
+    "list": [
+        {
+            "marketPrice": 119,
+            "saleCount": 6,
+            "businessName": "广州素洁服饰公司",
+            "businessId": "4028800457b6cf7a0157b7998c39001d",
+            "thumLogo": "http://sujiefs.com/upload/images/20180423/201804231129454571221_thumbnail.jpg",
+            "title": "新款韩版印花字母短款T恤衫 T18C076",
+            "evaluateCount": 0,
+            "price": 63,
+            "name": "新款韩版印花字母短款T恤衫  T18C076",
+            "stockNum": 80,
+            "wholePrice": 60,
+            "logo": "http://sujiefs.com/upload/images/20180423/201804231129454571221.jpg",
+            "id": "2c9257a16136c3d60162f09204f04e9f"
+        },
+        {
+            "marketPrice": 169,
+            "saleCount": 32,
+            "businessName": "广州素洁服饰公司",
+            "businessId": "4028800457b6cf7a0157b7998c39001d",
+            "thumLogo": "http://sujiefs.com/upload/images/20171005/201710051425394606742_thumbnail.jpg",
+            "title": "千鸟格裤子韩版百搭高腰开叉休闲裤P17D640-40",
+            "evaluateCount": 0,
+            "price": 68,
+            "name": "千鸟格裤子韩版百搭高腰开叉休闲裤P17D640-40",
+            "stockNum": 2000,
+            "wholePrice": 63,
+            "logo": "http://sujiefs.com/upload/images/20171005/201710051425394606742.jpg",
+            "id": "2c9257a15eaf3ade015eeb5f8ee106f3"
+        },
+        {
+            "marketPrice": 175,
+            "saleCount": 3,
+            "businessName": "广州素洁服饰公司",
+            "businessId": "4028800457b6cf7a0157b7998c39001d",
+            "thumLogo": "http://sujiefs.com/upload/images/20180424/201804241601446726444_thumbnail.jpg",
+            "title": "夏季印花棉修身针织T恤 T18C077",
+            "evaluateCount": 0,
+            "price": 75,
+            "name": "夏季印花棉修身针织T恤  T18C077",
+            "stockNum": 180,
+            "wholePrice": 73,
+            "logo": "http://sujiefs.com/upload/images/20180424/201804241601446726444.jpg",
+            "id": "2c9257a16136c3d60162f6b189d14fee"
+        },
+        {
+            "marketPrice": 249,
+            "saleCount": 3,
+            "businessName": "广州素洁服饰公司",
+            "businessId": "4028800457b6cf7a0157b7998c39001d",
+            "thumLogo": "http://sujiefs.com/upload/images/20180429/201804291348344307038_thumbnail.jpg",
+            "title": "新款印花圆领蝙蝠袖拼接面料T恤 T18C080",
+            "evaluateCount": 0,
+            "price": 77,
+            "name": "新款印花圆领蝙蝠袖拼接面料T恤 T18C080",
+            "stockNum": 120,
+            "wholePrice": 55,
+            "logo": "http://sujiefs.com/upload/images/20180429/201804291348344307038.jpg",
+            "id": "2c9257a16136c3d601630ff9a1ae5504"
+        },
+        {
+            "marketPrice": 195,
+            "saleCount": 84,
+            "businessName": "广州素洁服饰公司",
+            "businessId": "4028800457b6cf7a0157b7998c39001d",
+            "thumLogo": "http://sujiefs.com/upload/images/20171021/201710211104190121923_thumbnail.jpg",
+            "title": "韩版宽松V领卫衣女秋冬套头泡泡袖 T17D727",
+            "evaluateCount": 0,
+            "price": 78,
+            "name": "韩版宽松V领卫衣女秋冬套头泡泡袖 T17D727",
+            "stockNum": 1998,
+            "wholePrice": 72,
+            "logo": "http://sujiefs.com/upload/images/20171021/201710211104190121923.jpg",
+            "id": "2c9257a15f37e432015f3ceb000101a8"
+        }
+    ]
+}
+

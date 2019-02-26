@@ -1,0 +1,107 @@
+
+一级分类：
+https://sujiefs.com//api/mall/rootCtegoryList?sign=0d32ced6286e0ccf0a3a1e3f17ae8104&time=20190225091738
+{
+    "reason": "",
+    "code": "0",
+    "list": [
+        {
+            "code": "004",
+            "name": "上衣",
+            "logo": "http://sujiefs.com/upload/images/20170819/201708191958392454606.jpg",
+            "id": "402880f75d78aa88015d7905a5500003"
+        },
+        {
+            "code": "008",
+            "name": "裤子",
+            "logo": "",
+            "id": "2c9257a15de92f53015dea1c43280037"
+        },
+        {
+            "code": "009",
+            "name": "裙子",
+            "logo": "http://sujiefs.com/upload/images/20170816/201708161632508062033.jpg",
+            "id": "2c9257a15de92f53015dea1e76d3003e"
+        }
+    ]
+}
+
+
+二级分类接口：
+https://sujiefs.com//api/mall/childGoodsCatetoryList?rootCategoryCode=004&sign=0d32ced6286e0ccf0a3a1e3f17ae8104&time=20190225091738
+
+{
+    "msg": "",
+    "code": "0",
+    "list": [
+        {
+            "secondCategory": {
+                "code": "004009",
+                "name": "风衣",
+                "thumLogo": "http://sujiefs.com/upload/images/20171006/201710061145211681060_thumbnail.jpg"
+            },
+            "thirdCategoryList": []
+        },
+        {
+            "secondCategory": {
+                "code": "004003",
+                "name": "T恤",
+                "thumLogo": "http://sujiefs.com/upload/images/20170816/201708161803198792334_thumbnail.jpg"
+            },
+            "thirdCategoryList": []
+        }
+    ]
+}
+
+三级分类商品：
+https://sujiefs.com//api/mall/searchGoodsList?page=1&size=10&searchKeyWords=&cateCode=004009&sort=-1&skuval=&sign=0d32ced6286e0ccf0a3a1e3f17ae8104&time=20190225091738
+{
+    "reason": "",
+    "code": "0",
+    "page_total": 5,
+    "pageSize": 10,
+    "category": {
+        "code": "004009",
+        "name": "风衣",
+        "logo": "http://sujiefs.com/upload/images/20171006/201710061145211681060.jpg",
+        "id": "2c9257a15df5ff61015dfa90cab60479",
+        "attrs": []
+    },
+    "list": [
+        {
+            "marketPrice": 319,
+            "code": "SJ20170911-3",
+            "saleCount": 84,
+            "businessId": "4028800457b6cf7a0157b7998c39001d",
+            "businessName": "广州素洁服饰公司",
+            "thumLogo": "http://sujiefs.com/upload/images/20170923/201709231106263380832_thumbnail.jpg",
+            "evaluateCount": 0,
+            "price": 138,
+            "name": "双排扣过膝卡其色风衣女中长款宽松收腰外套大衣 SJ20170911-3",
+            "stockNum": 2998,
+            "logo": "http://sujiefs.com/upload/images/20170923/201709231106263380832.jpg",
+            "id": "2c9257a15ea875ce015eacbe626a01ae",
+            "sourceFlag": 1,
+            "status": 1
+        },
+        {
+            "marketPrice": 195,
+            "code": "SJ20170816-37",
+            "saleCount": 0,
+            "businessId": "4028800457b6cf7a0157b7998c39001d",
+            "businessName": "广州素洁服饰公司",
+            "thumLogo": "http://sujiefs.com/upload/images/20170907/201709071136172526456_thumbnail.jpg",
+            "evaluateCount": 0,
+            "price": 89,
+            "name": "韩版气质宽松翻领九分袖中长款薄风衣 SJ20170816-37",
+            "stockNum": 6000,
+            "logo": "http://sujiefs.com/upload/images/20170907/201709071136172526456.jpg",
+            "id": "2c9257a15e55d524015e5a6ea75e0064",
+            "sourceFlag": 1,
+            "status": 1
+        }
+    ],
+    "totalCount": 50,
+    "pageNum": 1
+}
+
