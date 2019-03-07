@@ -59,6 +59,10 @@ export default class Home extends wepy.page {
   config = {
     navigationBarTitleText: '演示商城',
   };
+  //页面的生命周期函数
+  onLoad() {
+    console.log('onLoad');
+  };
   components = {
     discover: Discover,
     bottomLoadMore: BottomLoadMore,
@@ -86,7 +90,7 @@ export default class Home extends wepy.page {
     adList: [],
     tps: 0,
     is_show_alert: true
-  }
+  };
   async getDiscoverList(currentPage, size) {
     let that = this;
     const json = await api.getHomeDisvocerList({
@@ -126,7 +130,7 @@ export default class Home extends wepy.page {
     that.getDiscoverList();
     this.getAdList();
   }
-  computed = {}
+  computed = {};
   methods = {
     goToAdvert(url) {
       console.log("url===" + url);
