@@ -3,9 +3,9 @@ import util from './util';
 import md5 from './md5';
 import tip from './tip'
 
-const API_SECRET_KEY = 'www.mall.cycle.com'
-const TIMESTAMP = util.getCurrentTime()
-const SIGN = md5.hex_md5((TIMESTAMP + API_SECRET_KEY).toLowerCase())
+const API_SECRET_KEY = 'nitago_wxapp_sales';
+const TIMESTAMP = util.getCurrentTime();
+const SIGN = md5.hex_md5((TIMESTAMP + API_SECRET_KEY).toLowerCase());
 
 const wxRequest = async(params = {}, url) => {
     tip.loading();
@@ -25,4 +25,4 @@ const wxRequest = async(params = {}, url) => {
 
 module.exports = {
     wxRequest
-}
+};
