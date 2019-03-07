@@ -45,7 +45,7 @@
       a: 0,
       skuval: ""
     }
-    events = {}
+    events = {};
     methods = {
       close() {
         this.show = false;
@@ -58,7 +58,7 @@
         this.$emit('filterSku', sku);
         this.swictchOverlay();
       }
-    }
+    };
     swictchOverlay() {
       this.show = !this.show;
       this.$apply();
