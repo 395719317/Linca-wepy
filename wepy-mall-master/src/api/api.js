@@ -3,7 +3,7 @@ import {
 } from '@/utils/wxRequest';
 
 let env = "-test" //-dev 或者 -test
-const apiMall = 'http://192.168.7.134:9099/';
+const apiMall = 'http://fygtest.nitago.com';
 // const apiMall = 'http://localhost:8080/'
 
 /**
@@ -144,6 +144,8 @@ const childGoodsCatetoryList = (params) => wxRequest(params, apiMall + '/api/wxa
 //查询广告列表
 const getAdList = (params) => wxRequest(params, apiMall + '/api/wxapp/index.php?do=adverts');
 
+//首页商品列表展示
+const getProductList = (params) => wxRequest(params, apiMall + '/api/wxapp/index.php?do=infoList');
 export default {
   hostGoodsList,
   getDiscoverList,
@@ -194,5 +196,6 @@ export default {
   getMyOrderSize,
   getPayOrderDetail,
   getAdList,
-  getSignDate
+  getSignDate,
+  getProductList
 }
