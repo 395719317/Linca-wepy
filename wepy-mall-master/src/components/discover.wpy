@@ -1,95 +1,116 @@
 <template>
-    <view class="bc">
-        <!--<view class="discover">
-            <view class="discover_title_doc">发现好商品</view>
-        </view>-->
-        <view class="discover_list">
-            <navigator class="item" open-type="navigate" wx:for="{{list}}" wx:key="item" url="/pages/home_detail?code={{item.code}}" >
-                <image class="discover_img" src="{{item.logo}}"></image>
-                <view class="info" wx:for="{{item.attrs}}" wx:key="item">
-                    <view>{{item.attrName.attrName}}：</view><view wx:for="{{item.attrValList}}" wx:key="item">{{item.attrVal}} </view>
-                </view>
+
+  <!--<view class="bc">-->
+  <!--&lt;!&ndash;<view class="discover">-->
+  <!--<view class="discover_title_doc">发现好商品</view>-->
+  <!--</view>&ndash;&gt;-->
+  <!--<view class="discover_list">-->
+  <!--<navigator class="item" open-type="navigate" wx:for="{{list}}" wx:key="item" url="/pages/home_detail?code={{item.code}}" >-->
+  <!--<view></view>-->
+  <!--<image class="discover_img" src="{{item.logo}}"></image>-->
+  <!--<view class="info" wx:for="{{item.attrs}}" wx:key="item">-->
+  <!--<view>{{item.attrName.attrName}}：</view><view wx:for="{{item.attrValList}}" wx:key="item">{{item.attrVal}} </view>-->
+  <!--</view>-->
+  <!--</navigator>-->
+  <!--</view>-->
+
+  <!--</view>-->
+
+
+  <view class="home_sort">
+
+    <view class="sort_list" wx:for="{{list}}" wx:key="item">
+      <view class="sort_title">
+        <view class="sort_name">{{item.categoryname}}</view>
+        <view class="sort_more">
+          <navigator url="/pages/search?cateCode={{item.cateCode}}&title={{item.categoryname}}">查看更多></navigator>
         </view>
-        </navigator>
+      </view>
+      <view >
+        <view class="sort_item" wx:for="{{item.plist}}" wx:key="items" >
+          <view class="discover_img">
+            <image src="http://{{item.imgurl}}"></image>
+          </view>
+          <view class="info">
+            <view class="info_text">{{item.name}}</view>
+            <view class="info_text info_price">￥{{item.price_max}}元</view>
+          </view>
+        </view>
+      </view>
     </view>
-    </view>
+
+  </view>
 </template>
 <script>
-import wepy from 'wepy';
-import api from '@/api/api';
+  import wepy from 'wepy';
+  import api from '@/api/api';
 
-export default class Discover extends wepy.component {
+  export default class Discover extends wepy.component {
 
     props = {
-        list: []
-    }
+      list: []
+    };
 
-    data = {
+    data = {};
 
-    }
     onLoad() {
-        let that = this;
-        console.log(this.list)
+      let that = this;
+      console.log("discoverJson", this.list);
     }
-    getList() {
-        console.log("调用getList方法6666666")
-    }
-    computed = {
 
+    getList() {
+      console.log("调用getList方法6666666")
+      console.log("discoverJson", this.list);
     }
+
+    computed = {};
     methods = {}
 
-}
+  }
 </script>
 <style lang="less">
-.discover {
-    text-align: center;
-    font-size: 30rpx;
-    padding: 30rpx 0rpx;
-    position: relative;
-}
+  .home_sort {
+    .sort_title {
+      height: 80rpx;
+      border-bottom: 3px solid #f5f5f5;
+      line-height: 80rpx;
+      padding: 0 30rpx 0 80rpx;
 
-.discover_title_doc {
-    display: inline-block;
-    position: relative;
-    z-index: 999;
-    width: 190rpx;
-    background: #f7f7f7;
-}
-
-.discover:before {
-    content: '';
-    height: 1rpx;
-    width: 460rpx;
-    position: absolute;
-    background: #dbdbdb;
-    top: 50rpx;
-    margin: 0 auto;
-    left: 0;
-    right: 0;
-}
-
-.discover_list {
-    .discover_img {
-        width: 100%;
-        height: 390rpx;
+      .sort_name {
+        float: left;
+      }
+      .sort_more {
+        float: right;
+      }
     }
-    .info {
-        padding: 5rpx;
-        color: #000000;
-        font-size: 26rpx;
-        line-height: 35rpx;
-        display: flex;
-        align-items: center;
-    }
-    .item {
-        background: #fff;
-        padding: 15rpx;
-        margin-bottom: 15rpx;
-    }
-}
+    .sort_list {
+      border-top: 20rpx solid #f5f5f5;
+      .sort_item {
+        background-color: white;
+        display:inline-block;
+        width: 50%;
+        border-right: 5rpx solid #f5f5f5;
+        border-bottom: 5rpx solid #f5f5f5;
+        box-sizing: border-box;
 
-.bc {
-    background: #f7f7f7;
-}
+        .discover_img {
+          text-align: center;
+          image {
+            width: 300rpx;
+            height: 300rpx;
+          }
+        }
+        .info_text {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          text-align: center;
+        }
+        .info_price {
+          text-align: center;
+        }
+      }
+
+    }
+  }
 </style>
