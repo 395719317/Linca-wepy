@@ -83,7 +83,7 @@ import discoverJson from '@/utils/json/discoverJson';
 
 export default class Home extends wepy.page {
   config = {
-    navigationBarTitleText: '千品百惠',
+    navigationBarTitleText: '翻洋购',
   };
   components = {
     discover: Discover,
@@ -117,14 +117,11 @@ export default class Home extends wepy.page {
   async getDiscoverList(currentPage, size) {
     let that = this
     const json = await api.getProductList()
-    console.log('json2',json.data);
     if (json.data!="") {
       that.discoverList = [...json.data];
     } else {
       tip.error("无数据");
     }
-
-    console.log('home1',that.discoverList);
   //  that.showLoading = false;
   }
   async getAdList() {
@@ -133,7 +130,6 @@ export default class Home extends wepy.page {
     });
     if (json.data.code == 0) {
       this.adList = json.data.list;
-      console.log('111'+this.adList.length);
       this.$apply();
     } else {}
   }
@@ -146,7 +142,6 @@ export default class Home extends wepy.page {
   computed = {};
   methods = {
     goToAdvert(url) {
-      console.log("url===" + url);
       if (url.length == 0) {
         return;
       }
@@ -157,7 +152,6 @@ export default class Home extends wepy.page {
     onShareAppMessage: function(res) {
       if (res.from === 'button') {
         // 来自页面内转发按钮
-        console.log(res.target)
       }
       return {
         title: '素洁服装厂',
@@ -182,7 +176,6 @@ export default class Home extends wepy.page {
   onReachBottom() {
     let that = this;
     that.showLoading = true;
-    console.log(that.page_total + "===" + that.currentPage);
     //判断总页数是否大于翻页数
     if ((that.page_total) > that.currentPage) {
       //防止重复加载
@@ -237,7 +230,7 @@ export default class Home extends wepy.page {
     border: 1px solid #efefee;
     .icon-search,
     .search_input {
-      color: #efefee;
+      color: #666;
     }
   }
   .message {
