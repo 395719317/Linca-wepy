@@ -40,9 +40,9 @@ export default class Register extends wepy.page {
   }
 
   async sendVerifyCode() {
-    const json = await api.sendRandCode({
+    const json = await api.getTelCode({
       query: {
-        phone: this.phone
+        tel: this.phone
       }
     });
     if (json.data.code == 0) {
@@ -57,20 +57,24 @@ export default class Register extends wepy.page {
         let that = this;
         let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
         let openId = userSpecialInfo.openid;
-        const json = await api.registerUser({
+        let userInfo=wepy.getStorageSync('userInfo') || {};
+        let userInfoStr=JSON.stringify(userInfo);
+        const json = await api.getLogin({
           query: {
-            openId: openId,
-            mobile:phone,
-            verificationCode:code
+            openid: openId,
+            tel:phone,
+            msmcode:code,
+            userinfo:userInfoStr
           }
         });
 
         if (json.data.code == 0) {
-          // that.list = json.data.list;
-          wepy.navigateBack();
-          console.log("绑定成功.....");
-
-          that.$apply();
+            tip.success("绑定成功!");
+            setTimeout(function () {
+               wepy.switchTab({
+                url: '/pages/home'
+           })
+          }, 3000);
         } else {
           tip.error(json.data.msg)
         }
