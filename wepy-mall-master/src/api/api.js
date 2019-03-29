@@ -146,6 +146,16 @@ const getAdList = (params) => wxRequest(params, apiMall + '/api/wxapp/index.php?
 
 //首页商品列表展示
 const getProductList = (params) => wxRequest(params, apiMall + '/api/wxapp/index.php?do=infoList');
+
+//登录得到code抛给后台
+const getOpenId= (params) => wxRequest(params, apiMall + '/api/wxapp/user.php?do=login');
+
+//登录
+const getLogin= (params) => wxRequest(params, apiMall + '/api/wxapp/user.php?do=register');
+
+//得到短信验证码
+const getTelCode= (params) => wxRequest(params, apiMall + '/api/wxapp/user.php?do=telcode');
+
 export default {
   hostGoodsList,
   getDiscoverList,
@@ -197,5 +207,8 @@ export default {
   getPayOrderDetail,
   getAdList,
   getSignDate,
-  getProductList
+  getProductList,
+  getOpenId,
+  getLogin,
+  getTelCode
 }
