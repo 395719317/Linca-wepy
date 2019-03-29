@@ -1,5 +1,14 @@
 <template>
   <view class="container">
+    <view>
+      <scroll-view class="category_scroll"  scroll-x scroll-with-animation="true">
+        <navigator class="category_list {{item.shows?'select':''}}"  wx:for="{{categoryList}}"  wx:key="item"  url="/pages/search?cateCode={{item.code}}&title={{item.name}}">
+          <view    data-code="{{item.code}}">{{item.name}}</view>
+        </navigator>
+
+      </scroll-view>
+    </view>
+
     <search @searchValue.user="doSearch"></search>
     <filterBar wx:if="{{list.length>0||skuval !==''}}" @currentType.user="currentType"></filterBar>
     <view wx:if="{{list.length>0}}">
@@ -49,7 +58,7 @@
       filterSlider: FilterSlider,
       shopGridList: ShopGridList,
       bottomLoadMore: BottomLoadMore,
-      placeholder: Placeholder
+      placeholder: Placeholder,
     };
     data = {
       list: [],
@@ -67,7 +76,8 @@
       show: true,
       sort: -1,
       title: "",
-      skuval: ""
+      skuval: "",
+      categoryList:[]
     };
     async getKeyWordHisList() {
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
@@ -116,8 +126,12 @@
           skuval: this.skuval
         }
       });
+      console.log('json3',json);
       if (json.data.code == 0) {
         that.list = [...that.list, ...json.data.list];
+        that.categoryList=[...that.categoryList,...json.data.category];
+        console.log('categoryList',that.categoryList);
+        console.log('list',that.list);
         that.page_total = json.data.page_total;
         if (json.data.page_total == 0) {
           //暂无数据
@@ -155,6 +169,9 @@
       this.$apply();
     }
     methods = {
+      changeCategory(e){
+        console.log('e',e);
+      },
       doSearch(val) {
         this.list = [];
         this.is_empty = false;
@@ -254,6 +271,22 @@
 </script>
 
 <style lang="less">
+  .category_scroll{
+     display:block;
+    white-space: nowrap;
+    border-bottom:15rpx solid #f5f5f5;
+    .category_list{
+      display:inline-block;
+      height:58rpx;
+      margin:0 30rpx;
+      font-size:35rpx;
+    }
+    .select{
+      color: #00b4ff;
+      border-bottom:6rpx solid #00b4ff;
+    }
+  }
+
   .history {
     padding: 20px 27px;
   }
