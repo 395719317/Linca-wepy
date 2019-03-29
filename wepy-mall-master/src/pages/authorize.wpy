@@ -9,123 +9,144 @@
   </view>
 </template>
 <script>
-import wepy from 'wepy';
-import api from '@/api/api';
-import {
-  SYSTEM_INFO,
-  USER_SPECICAL_INFO,
-  USER_INFO
-} from '@/utils/constant';
-export default class Authorize extends wepy.page {
-  config = {
-    navigationBarTitleText: '授权登录',
-  };
-  async onLoad() {
-    // wepy.login({
-    //   success: function (res) {
-    //       console.log(res);
-    //   }
-    // });
+  import wepy from 'wepy';
+  import api from '@/api/api';
+  import {
+    SYSTEM_INFO,
+    USER_SPECICAL_INFO,
+    USER_INFO
+  } from '@/utils/constant';
+  export default class Authorize extends wepy.page {
+    config = {
+      navigationBarTitleText: '授权登录',
+    }
+    async onLoad() {
+      let res = await wepy.getSetting();
+      //判断是否已经授权得到个人信息
+      if ((res.authSetting)['scope.userInfo']) {
+        console.log('已经授权');
+        let userInfo = wepy.getStorageSync(USER_INFO)
+        let usi=wepy.getStorageSync(USER_SPECICAL_INFO)||'';
+        //判断是否有缓存个人信息
+        if (!userInfo.nickName&&usi.openid==null&&usi.tel==null) {
+          console.log(1);
+          let res = await wepy.login();
+          let data  = await wepy.getUserInfo();
+          //把个人的信息缓存
+          if (data) {
+            wepy.setStorageSync(USER_INFO, data.userInfo)
+          }
+          //缓存openid
+          if (res.code) {
+            let systemInfo = wepy.getSystemInfoSync();
+            wepy.setStorageSync(SYSTEM_INFO, systemInfo);
+            //把login code给后台，再返回openid
+            let rlt = await api.getOpenId({
+              query: {
+                code: res.code
+              }
+            });
+            if (rlt.data.Success&&rlt.data.mid==0) {
+              let data = rlt.data;
+              if (data.openid!=null) {
+                wepy.setStorageSync(USER_SPECICAL_INFO, data.data);
+                wepy.switchTab({
+                  url: '/pages/register'
+                })
+              }
+            }else{
+              let data = rlt.data;
+              if (data.openid) {
+                wepy.setStorageSync(USER_SPECICAL_INFO, data);
+                wepy.switchTab({
+                  url: '/pages/home'
+                })
+              }
 
-    let res = await wepy.getSetting();
-    console.log('res',res);
-    console.log('userInfo',(res.authSetting)['scope.userInfo']);
-    if ((res.authSetting)['scope.userInfo']) {
-      let userInfo = wepy.getStorageSync(USER_INFO);
-      if (!userInfo.nickName) {
-        let data  = await wepy.getUserInfo();
-        if (data) {
-          wepy.setStorageSync(USER_INFO, data.userInfo)
+            }
+          }
         }
+        //已经请求成功就跳转到首页
+        wepy.switchTab({
+          url: '/pages/home'
+        })
+      }
+    }
+    async onGotUserInfo(e) {
+      //点击按钮进行授权
+      if (e.detail.errMsg == 'getUserInfo:ok') {
         let res = await wepy.login();
         if (res.code) {
+          wepy.setStorageSync(USER_INFO, e.detail.userInfo);
           let systemInfo = wepy.getSystemInfoSync();
           wepy.setStorageSync(SYSTEM_INFO, systemInfo);
-          let rlt = await api.wxJsCode2Session({
+          //得到openid和是mid（是否已经绑定手机号）
+          let rlt = await api.getOpenId({
             query: {
-              jsCode: res.code,
-              nickName: data.userInfo.nickName
+              code: res.code
             }
           });
-          if (rlt.data.result) {
+          if (rlt.data.Success) {
             let data = rlt.data;
-            if (data.data.openid) {
-              wepy.setStorageSync(USER_SPECICAL_INFO, data.data);
+            if(!rlt.data.mid==0){
+              if (data.openid) {
+                wepy.setStorageSync(USER_SPECICAL_INFO, data);
+                wepy.navigateTo({
+                  url: '/pages/register'
+                })
+              }
+            }else{
+              wepy.switchTab({
+                url: '/pages/home'
+              })
+
+            }
+
+          } else {
+            let res = await wepy.showModal({
+              title: 'openid有误',
+              content: '授权失败'
+            })
+            if (res.confirm) {
+              wepy.switchTab({
+                url: '/pages/home'
+              })
             }
           }
+
         }
       }
-      wepy.switchTab({
-        url: '/pages/home'
-      })
+    }
+    methods = {
+
+    }
+    events = {
+
     }
   }
-  async onGotUserInfo(e) {
-    if (e.detail.errMsg == 'getUserInfo:ok') {
-      let res = await wepy.login();
-      if (res.code) {
-        wepy.setStorageSync(USER_INFO, e.detail.userInfo);
-        let systemInfo = wepy.getSystemInfoSync();
-        wepy.setStorageSync(SYSTEM_INFO, systemInfo);
-        let rlt = await api.wxJsCode2Session({
-          query: {
-            jsCode: res.code,
-            nickName: e.detail.userInfo.nickName
-          }
-        });
-        if (rlt.data.result) {
-          let data = rlt.data;
-          if (data.data.openid) {
-            wepy.setStorageSync(USER_SPECICAL_INFO, data.data);
-            wepy.switchTab({
-              url: '/pages/home'
-            })
-          }
-        } else {
-          let res = await wepy.showModal({
-            title: 'appid有误',
-            content: '授权失败'
-          });
-          if (res.confirm) {
-            wepy.switchTab({
-              url: '/pages/home'
-            })
-          }
-        }
-
-      }
-    }
-  }
-  methods = {
-
-  };
-  events = {
-
-  }
-}
 </script>
 <style lang="less">
-page {
-  height: 100%;
-}
+  page {
+    height: 100%;
+  }
 
-.authorize-contianer {
-  height: 100%;
-  background: #fff;
-  text-align: center;
-  padding-top: 100rpx;
-  .authorize-icon {
-    width: 128rpx;
-    height: 128rpx;
-    display: block;
-    margin: 0 auto;
-    padding-bottom: 10rpx;
+  .authorize-contianer {
+    height: 100%;
+    background: #fff;
+    text-align: center;
+    padding-top: 100rpx;
+    .authorize-icon {
+      width: 128rpx;
+      height: 128rpx;
+      display: block;
+      margin: 0 auto;
+      padding-bottom: 10rpx;
+    }
+    .auth-item {
+      padding: 5rpx 0;
+    }
+    .btn-authorize {
+      margin: 100rpx 50rpx;
+    }
   }
-  .auth-item {
-    padding: 5rpx 0;
-  }
-  .btn-authorize {
-    margin: 100rpx 50rpx;
-  }
-}
 </style>
