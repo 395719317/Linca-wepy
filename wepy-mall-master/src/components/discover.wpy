@@ -1,22 +1,5 @@
 <template>
 
-  <!--<view class="bc">-->
-  <!--&lt;!&ndash;<view class="discover">-->
-  <!--<view class="discover_title_doc">发现好商品</view>-->
-  <!--</view>&ndash;&gt;-->
-  <!--<view class="discover_list">-->
-  <!--<navigator class="item" open-type="navigate" wx:for="{{list}}" wx:key="item" url="/pages/home_detail?code={{item.code}}" >-->
-  <!--<view></view>-->
-  <!--<image class="discover_img" src="{{item.logo}}"></image>-->
-  <!--<view class="info" wx:for="{{item.attrs}}" wx:key="item">-->
-  <!--<view>{{item.attrName.attrName}}：</view><view wx:for="{{item.attrValList}}" wx:key="item">{{item.attrVal}} </view>-->
-  <!--</view>-->
-  <!--</navigator>-->
-  <!--</view>-->
-
-  <!--</view>-->
-
-
   <view class="home_sort">
 
     <view class="sort_list" wx:for="{{list}}" wx:key="item">
@@ -27,7 +10,9 @@
         </view>
       </view>
       <view >
-        <view class="sort_item" wx:for="{{item.plist}}" wx:key="items" >
+
+        <navigator class="sort_item" wx:for="{{item.plist}}" wx:key="items"
+                   url="/pages/goods_detail?id={{item.id}}&purchasetype={{purchasetype}}&special={{special}}">
           <view class="discover_img">
             <image src="http://{{item.imgurl}}"></image>
           </view>
@@ -35,7 +20,9 @@
             <view class="info_text">{{item.name}}</view>
             <view class="info_text info_price">￥{{item.price_max}}元</view>
           </view>
-        </view>
+
+        </navigator>
+
       </view>
     </view>
 
@@ -55,12 +42,10 @@
 
     onLoad() {
       let that = this;
-      console.log("discoverJson", this.list);
     }
 
     getList() {
       console.log("调用getList方法6666666")
-      console.log("discoverJson", this.list);
     }
 
     computed = {};
