@@ -28,16 +28,18 @@
         let userInfo = wepy.getStorageSync(USER_INFO)
         let usi=wepy.getStorageSync(USER_SPECICAL_INFO)||'';
         //判断是否有缓存个人信息
-        if (!userInfo.nickName&&usi.openid==null&&usi.tel==null) {
-          console.log(1);
+        if (userInfo.nickName==null||usi.openid==null||usi.tel==null) {
+          console.log('没有缓存用户信息');
           let res = await wepy.login();
           let data  = await wepy.getUserInfo();
           //把个人的信息缓存
           if (data) {
             wepy.setStorageSync(USER_INFO, data.userInfo)
+            console.log('缓存用户信息');
           }
           //缓存openid
           if (res.code) {
+            console.log('res.code',res.code);
             let systemInfo = wepy.getSystemInfoSync();
             wepy.setStorageSync(SYSTEM_INFO, systemInfo);
             //把login code给后台，再返回openid
@@ -45,12 +47,12 @@
               query: {
                 code: res.code
               }
-            });
+            })
             if (rlt.data.Success&&rlt.data.mid==0) {
               let data = rlt.data;
               if (data.openid!=null) {
-                wepy.setStorageSync(USER_SPECICAL_INFO, data.data);
-                wepy.switchTab({
+                wepy.setStorageSync(USER_SPECICAL_INFO,data);
+                wepy.navigateTo({
                   url: '/pages/register'
                 })
               }
