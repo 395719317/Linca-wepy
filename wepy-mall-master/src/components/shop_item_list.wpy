@@ -82,7 +82,6 @@ export default class ShopItemList extends wepy.component {
   methods = {
     refreshList(val){
       if (val==undefined) return;
-      console.log("val.....",val);
       this.list = val;
       this.$apply();
     },

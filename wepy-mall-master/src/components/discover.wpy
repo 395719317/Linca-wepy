@@ -12,7 +12,7 @@
       <view >
 
         <navigator class="sort_item" wx:for="{{item.plist}}" wx:key="items"
-                   url="/pages/goods_detail?id={{item.id}}&purchasetype={{purchasetype}}&special={{special}}">
+                   url="/pages/goods_detail2?id={{item.id}}&purchasetype={{purchasetype}}&special={{special}}">
           <view class="discover_img">
             <image src="http://{{item.imgurl}}"></image>
           </view>

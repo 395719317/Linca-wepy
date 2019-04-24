@@ -78,12 +78,15 @@
     async getCartList() {
       let that = this;
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      const json = await api.cartList({
+      let mid=userSpecialInfo.mid||'';
+      let openid=userSpecialInfo.openid||'';
+      const json = await api.getCarts({
         query: {
-          openId: openId
+          open_Id: openid,
+          m_id:mid
         }
       });
+      console.log('shop_cart_json',json);
       if (json.data.code == 0) {
         let data = json.data;
         this.list = data.list;

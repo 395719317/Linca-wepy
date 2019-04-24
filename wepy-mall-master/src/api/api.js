@@ -3,7 +3,8 @@ import {
 } from '@/utils/wxRequest';
 
 let env = "-test" //-dev 或者 -test
-const apiMall = 'http://fygtest.nitago.com';
+const apiMall = 'https://fygtest.nitago.com';
+////const apiMall = '192.168.2.134:9090'
 // const apiMall = 'http://localhost:8080/'
 
 /**
@@ -156,7 +157,23 @@ const getLogin= (params) => wxRequest(params, apiMall + '/api/wxapp/user.php?do=
 //得到短信验证码
 const getTelCode= (params) => wxRequest(params, apiMall + '/api/wxapp/user.php?do=telcode');
 
+//商品详情接口
+const getPdDetail= (params) => wxRequest(params, apiMall + '/api/wxapp/prods.php?do=goodsinfo');
+
+//商品规格接口
+const getPdSpeDetail= (params) => wxRequest(params, apiMall + '/api/wxapp/prods.php?do=productinfo');
+
+//添加购物车
+const addCarts= (params) => wxRequest(params, apiMall + '/api/wxapp/order.php?do=addcarts');
+
+//查看购物车
+const getCarts= (params) => wxRequest(params, apiMall + '/api/wxapp/order.php?do=getcarts');
+
+//修改购物车
+const delcarts=(params) => wxRequest(params, apiMall + '/api/wxapp/order.php?do=delcarts');
+
 export default {
+  apiMall,
   hostGoodsList,
   getDiscoverList,
   getHomeDisvocerList,
@@ -210,5 +227,10 @@ export default {
   getProductList,
   getOpenId,
   getLogin,
-  getTelCode
+  getTelCode,
+  getPdDetail,
+  getPdSpeDetail,
+  addCarts,
+  getCarts,
+  delcarts
 }

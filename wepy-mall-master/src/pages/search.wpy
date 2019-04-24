@@ -126,12 +126,9 @@
           skuval: this.skuval
         }
       });
-      console.log('json3',json);
       if (json.data.code == 0) {
         that.list = [...that.list, ...json.data.list];
         that.categoryList=[...that.categoryList,...json.data.category];
-        console.log('categoryList',that.categoryList);
-        console.log('list',that.list);
         that.page_total = json.data.page_total;
         if (json.data.page_total == 0) {
           //暂无数据
@@ -170,7 +167,6 @@
     }
     methods = {
       changeCategory(e){
-        console.log('e',e);
       },
       doSearch(val) {
         this.list = [];
@@ -213,7 +209,6 @@
         this.doSearchGoods(this.keyword);
       },
       selHisKeyWord(e) {
-        console.log(e);
         var id = e.currentTarget.dataset.id;
         var hisKeyword = "";
         for (var i = 0; i < this.keywordhisList.length; i++) {
@@ -234,7 +229,6 @@
       onShareAppMessage: function(res) {
         if (res.from === 'button') {
           // 来自页面内转发按钮
-          console.log(res.target)
         }
         return {
           title: this.detail.name,
@@ -252,7 +246,6 @@
     onReachBottom() {
       let that = this;
       that.showLoading = true;
-      console.log(that.page_total + "===" + that.currentPage);
       //判断总页数是否大于翻页数
       if ((that.page_total) > that.currentPage) {
         //防止重复加载
