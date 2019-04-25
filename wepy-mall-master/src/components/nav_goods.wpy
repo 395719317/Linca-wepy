@@ -1,0 +1,44 @@
+<template>
+    <view class="bc" wx:for="{{list}}" wx:key="item">
+        <view class="nav_head">
+              <view class="nav_title">美容护肤</view>
+              <navigator class="item" open-type="navigate" url="/pages/home_detail?code={{item.code}}">查看更多 ></navigator>
+        </view>
+       <view class="nav_item">
+            <view>
+                <image src="http://www.gopingtan.com/cache/fillw_300h_300/3c5187f56fc52630c24112ccfaf53db51524305970.jpg.png"></image>
+                <view>Nursery柚子卸妆啫喱 深层清洁眼唇温和清爽卸妆乳180ml</view>
+                <view>56.00</view>
+            </view>
+       </view>
+    </view>
+</template>
+<script>
+import wepy from 'wepy';
+import api from '@/api/api';
+
+export default class Discover extends wepy.component {
+
+    props = {
+        list: []
+    };
+
+    data = {
+
+    };
+    onLoad() {
+        let that = this;
+    }
+    getList() {
+
+    }
+    computed = {
+
+    };
+    methods = {}
+
+}
+</script>
+<style lang="less">
+
+</style>

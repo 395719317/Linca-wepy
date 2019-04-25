@@ -1,0 +1,435 @@
+<template>
+  <view class="product-detail">
+    <view class="carousel">
+      <swiper indicator-dots="true" autoplay="true" interval="5000" duration="500" indicator-active-color="#ffc452"
+              indicator-color="#efefef" class="swiper">
+        <block wx:for="{{detail.imgs}}" key="item" item="item" wx:key="key">
+        <swiper-item>
+          <image src="{{item[0]}}"
+                 class="slide-image" @tap="previewImage"/>
+        </swiper-item>
+        </block>
+      </swiper>
+
+      <!--标题和价格-->
+      <view class="title">{{detail.name}}</view>
+      <view class="des f_start">
+        <view class="price">¥{{detail.price}}</view>
+        <view class="quantity">销量：{{detail.order_records.length}}</view>
+      </view>
+
+      <!--规格数量-->
+      <view class="opt">
+        <view class="format">
+          <view class="f_start">
+              <view class="title">规格：</view>
+            <block wx:for="{{detail.sgp_list}}" key="item" item="item" wx:key="key" >
+              <navigator   open-type="navigate" url="/pages/goods_detail2?pid={{item.product_id}}&gid={{item.goods_id}}&index={{index}}&type=gg" hover-class="none">
+                <view data-index="{{index}}" class="item {{type_index==index?'active':''}}" @tap="select_type" >{{item.sgp_name}}</view>
+              </navigator>
+
+            </block>
+          </view>
+        </view>
+        <view class="num f_start">
+          <view class="num_title">数量：</view>
+          <view class="num f_start">
+            <button catchtap="minusBtnTap">-</button>
+            <input bindinput="bindOrderNumInput" type="number" value="{{order_num}}"/>
+            <button catchtap="plusBtnTap">+</button>
+          </view>
+        </view>
+      </view>
+
+      <!--介绍导航-->
+      <view class="nav_content">
+        <view class="nav_title f_start">
+          <view class="{{nav_act=='g_dec'?'active':''}}" data-key="g_dec"  @tap="select_nav">商品介绍</view>
+          <view class="{{nav_act=='b_record'?'active':''}}" data-key="b_record"  @tap="select_nav">购买纪录({{detail.order_records.length}})</view>
+          <view class="{{nav_act=='b_node'?'active':''}}" data-key="b_node"  @tap="select_nav">购买须知</view>
+          <view class="{{nav_act=='r_product'?'active':''}}" data-key="r_product"  @tap="select_nav">推荐商品</view>
+        </view>
+        <view class="nav_des f_start">
+          <view>品牌：{{detail.pp}}</view>
+          <view>适用年龄：{{detail.synl}}</view>
+          <view>保质期：{{detail.bzq}}</view>
+          <view>原产国：{{detail.ycd}}</view>
+          <view>储藏方式：{{detail.ccff}}</view>
+          <view>厂家地址：{{detail.cjdz}}</view>
+          <view>规格：{{detail.gg}}</view>
+          <view>包装方式：{{detail.bzfs}}</view>
+          <view>厂家：{{detail.cj}}</view>
+        </view>
+
+        <!--商品介绍-->
+        <view class="pd_des {{nav_act=='g_dec'?'':'hidden'}}">
+          <rich-text nodes="{{content}}" bindtap="tap"></rich-text>
+        </view>
+        <!--购买记录-->
+        <view class="ht_list {{nav_act=='b_record'?'':'hidden'}}">
+          <block  wx:for="{{detail.order_records}}" wx:key="*this">
+          <view class="ht_item">
+            <view class="ht_title"></view>
+            <view class="ht_content f_float">
+                <view>规格:{{item.gg}}</view>
+                <view>数量:{{item.num}}</view>
+                <view>{{item.ord_dt}}</view>
+            </view>
+          </view>
+          </block>
+        </view>
+        <!--购买须知-->
+        <view class=" {{nav_act=='b_node'?'':'hidden'}}">
+          <rich-text nodes="{{buy_text}}" bindtap="tap"></rich-text>
+        </view>
+        <!--推荐商品-->
+        <view class="rec f_start {{nav_act=='r_product'?'':'hidden'}}">
+          <view class="rec_item">
+              <image mode="widthFix" src="http://www.gopingtan.com/cache/fillw_214h_214/871e0a9e71e782f51141b3a1cc915e921518918339.jpg.png" />
+              <view class="rec_title">石泽研究所洗面奶毛孔抚子洁面乳100G</view>
+              <view>价 格：￥30.00</view>
+          </view>
+          <view class="rec_item">
+            <image mode="widthFix" src="http://www.gopingtan.com/cache/fillw_214h_214/871e0a9e71e782f51141b3a1cc915e921518918339.jpg.png" />
+              <view class="rec_title">石泽研究所洗面奶毛孔抚子洁面乳100G</view>
+              <view>价 格：￥30.00</view>
+          </view>
+          <view class="rec_item">
+            <image mode="widthFix" src="http://www.gopingtan.com/cache/fillw_214h_214/871e0a9e71e782f51141b3a1cc915e921518918339.jpg.png" />
+              <view class="rec_title">石泽研究所洗面奶毛孔抚子洁面乳100G</view>
+              <view>价 格：￥30.00</view>
+          </view>
+          <view class="rec_item">
+            <image mode="widthFix" src="http://www.gopingtan.com/cache/fillw_214h_214/871e0a9e71e782f51141b3a1cc915e921518918339.jpg.png" />
+              <view class="rec_title">石泽研究所洗面奶毛孔抚子洁面乳100G</view>
+              <view>价 格：￥30.00</view>
+          </view>
+        </view>
+
+      </view>
+
+    </view>
+    <!--自定义底部nav-->
+    <view class="bottom_nav f_float">
+      <navigator class="i_home" open-type="switchTab" url="/pages/home">
+      </navigator>
+      <navigator class="s_cart" open-type="switchTab" url="/pages/shop_cart">
+      </navigator>
+      <view class="a_cart" bindtap="addOrder">加入购物车</view>
+      <view class="b_now">立即购买</view>
+    </view>
+  </view>
+
+</template>
+<script>
+  import wepy from 'wepy'
+  import {
+    SYSTEM_INFO,
+    USER_SPECICAL_INFO,
+    USER_INFO
+  } from '@/utils/constant';
+  import tip from '@/utils/tip'
+  import api from '@/api/api';
+  import WxParse from "../plugins/wxParse/wxParse";
+
+  export default class goodsDetail extends wepy.page {
+    config = {
+      navigationBarTitleText: '商品详情'
+    }
+    data = {
+      gid:"",
+      pid:"",
+      mid:"",
+      openid:"",
+      detail: {},
+      nav_act:"g_dec",
+      content:"",
+      order_num:"1",
+      type_index:"",
+      buy_text:"<p>1,商品本身可能无中文标签，您可以查看网站的翻译或者在线联系我们的客服；</p><p>2,同商品可能涉及到不同的仓库，因发货仓库不同，货物配送到您手中的时效会稍有区别，请以实际为准；</p><p>3,您确保订单中的收货地址、收件人姓名、手机号码等各项信息的准确性和有效性，以便商品及时、准确地发出，并随时查看个人账户 里“我的订单”的订单状态更新情况；</p><p>4 ,送货过程中如果快递员联络您未及时得到回复，此订单将被默认为您已经放弃订购，由此产生的费用或其他后果由您自行承担；</p><p>5,商品不支持任何无理由退换货，不支持无理由拒收，此类商品如果被拒收或退回，将扣除50%的订单总金额，请您务必收到货时在快递员见证下先拆包检查。 清仓商品主要是客户退换货的商品，请慎拍。有问题的及时拒收并联系客服处理，没问题再签收！（其他售后问题请参考帮助中心的售后服务）。</p>"
+    }
+
+    async getGoodsDetail(option) {
+      let userSpecialInfo= wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+      this.mid=userSpecialInfo.mid||'';
+      this.openid=userSpecialInfo.openid||'';
+      this.pid=option.pid||'';
+      let type=option.type||'';
+      let json={};
+      if(type=='gg'){
+        this.gid=option.gid||'';
+        this.type_index=option.index;
+        json = await api.getPdSpeDetail({
+          query: {
+            goods_id: this.gid,
+            m_id:this.mid,
+            open_id:this.openid,
+            product_id:pid
+          }
+        });
+      }else{
+        this.gid=option.id||'';
+        json = await api.getPdDetail({
+          query: {
+            id: this.gid,
+            m_id:this.mid,
+            open_id:this.openid
+          }
+        });
+        this.pid=json.data.sgp_list[0].product_id||'';
+      }
+      this.detail=json.data;
+      if(this.detail.content.indexOf('src="/ueditor')!=-1){
+          let str=this.detail.content;
+          str=str.replace(/\<img/g,'<img class="dec_img" ');
+          this.content= str.replace(/src=\"\/ueditor/g,'src="'+api.apiMall+'/ueditor');
+      }
+      this.$apply();
+    }
+
+    async addOrder(){
+      let json = await api.addCarts({
+        query: {
+          product_id: this.pid,
+          m_id:this.mid,
+          open_id:this.openid,
+          num:this.order_num
+        }
+      });
+
+    }
+    components = {}
+
+    onLoad(option) {
+
+      this.getGoodsDetail(option);
+
+    }
+
+    onShow() {
+
+    }
+
+    computed = {}
+    events = {}
+    methods = {
+      select_nav(e){
+        console.log(e.target.dataset.key);
+        this.nav_act=e.target.dataset.key;
+      },
+      select_type(e){
+        this.type_index=e.target.dataset.index;
+      },
+      bindOrderNumInput(e) {
+        this.order_num = e.detail.value;
+      },
+      minusBtnTap(e){
+        if (this.order_num > 1) {
+          this.order_num--;
+        }
+      },
+      plusBtnTap(e){
+        this.order_num++;
+      }
+    }
+  }
+</script>
+<style lang="less">
+  .product-detail {
+      position:relative;
+    .carousel {
+      padding-bottom:100rpx;
+      background-color: white;
+      swiper {
+        width: 600rpx;
+        height: 600rpx;
+        margin: 0 auto;
+        image {
+          display: block;
+          margin: 0 auto;
+          height: 600rpx;
+          width: 600rpx;
+        }
+      }
+      .title{
+        margin-left:20rpx;
+      }
+      .des {
+        view {
+          margin: 20rpx;
+        }
+      }
+    }
+    .opt{
+      border-top: 1px solid #efefef;
+      border-bottom: 1px solid #efefef;
+      padding:18rpx;
+    .format{
+      .title{
+        text-align: center;
+        line-height: 90rpx;
+      }
+      .item{
+         border: 1px solid #c3c3c3;
+        border-radius: 12rpx;
+        margin-left:15rpx;
+        margin-top:15rpx;
+        height:50rpx;
+        padding:8rpx;
+        line-height: 50rpx;
+      }
+      .active{
+        color: #ffffff;
+        background: #00b4ff;
+        border: 1px solid #00b4ff;
+      }
+    }
+      .num{
+        margin-top:20rpx;
+        button::after {
+          border-radius: 0;
+          border:none;
+        }
+        button{
+          display: table;
+          border-radius: 0;
+          height:60rpx;
+          width:60rpx;
+          border: 1rpx solid #c3c3c3;
+          background: white;
+          line-height: 58rpx;
+          text-align:center;
+          margin:0;
+        }
+
+        input{
+          outline: none;
+          border: none;
+          list-style: none;
+          border-top: 1rpx solid #c3c3c3;
+          border-bottom: 1rpx solid #c3c3c3;
+          height:58rpx;
+          width:120rpx;
+          line-height:58rpx;
+          text-align:center;
+
+
+        }
+        .num_title{
+          line-height: 90rpx;
+
+        }
+      }
+    }
+    /*介绍导航*/
+    .nav_content{
+      border-top:20rpx solid #efefef;
+      border-bottom:1rpx solid #efefef;
+      padding-top:20rpx;
+      padding-bottom:20rpx;
+      .nav_title{
+        >view{
+          width:25%;
+          height:60rpx;
+          text-align: center;
+          border-right:1rpx solid #ccc;
+          box-sizing: border-box;
+          line-height: 60rpx;
+        }
+        .active{
+         color: #00B4FF;
+        }
+      }
+      .nav_des{
+        margin:30rpx 15rpx;
+        border-bottom: 1rpx solid #efefef;
+        >view{
+          width:50%;
+          margin-bottom: 20rpx;
+        }
+      }
+      image{
+        width:100%;
+      }
+      /*商品介绍*/
+      .pd_des .dec_img{
+        display:block;
+        width:100%;
+      }
+
+      /*购买记录*/
+      .ht_list{
+        padding:0 20rpx;
+        .ht_item{
+          border-bottom: 1px dashed #ccc;
+          >view{
+            margin:10rpx 0;
+          }
+        }
+        .ht_content{
+          >view{
+            width:250rpx;
+          }
+        }
+      }
+
+      /*购买须知*/
+      .gmxz-box{
+        margin:20rpx 10rpx;
+        line-height:70rpx;
+      }
+
+      /*推荐商品*/
+      .rec{
+        .rec_item{
+          padding:10rpx;
+          box-sizing: border-box;
+          width:50%;
+          border:10rpx solid #efefef;
+          .rec_title{
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+      }
+
+
+    }
+    .bottom_nav{
+      position:fixed;
+      bottom:0;
+      z-index: 999;
+      background:white;
+      height:90rpx;
+      width:100vw;
+      .i_home{
+        width: 15vw;
+        background: url("http://www.fanyanggou.cn/mobile/images/xqq/nav_icon.png") no-repeat center center;
+        background-size:50rpx;
+      }
+      .s_cart{
+        width: 15vw;
+        background: url("http://www.fanyanggou.cn/mobile/images/xqq/nav_icon02.png") no-repeat center center;
+        background-size:50rpx;
+      }
+      .a_cart{
+        width:35vw;
+        color:white;
+        font-size:40rpx;
+        background: #ff9600;
+        line-height: 90rpx;
+        text-align: center;
+      }
+      .b_now{
+        width:35vw;
+        color:white;
+        font-size:40rpx;
+        background: #00b4ff;
+        line-height: 90rpx;
+        text-align: center;
+      }
+    }
+
+  }
+</style>

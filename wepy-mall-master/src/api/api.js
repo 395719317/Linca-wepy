@@ -169,8 +169,11 @@ const addCarts= (params) => wxRequest(params, apiMall + '/api/wxapp/order.php?do
 //查看购物车
 const getCarts= (params) => wxRequest(params, apiMall + '/api/wxapp/order.php?do=getcarts');
 
+//删除购物车
+const delCarts=(params) => wxRequest(params, apiMall + '/api/wxapp/order.php?do=delcarts');
+
 //修改购物车
-const delcarts=(params) => wxRequest(params, apiMall + '/api/wxapp/order.php?do=delcarts');
+const addCartsNum=(params) => wxRequest(params, apiMall + '/api/wxapp/order.php?do=addcarts_num');
 
 export default {
   apiMall,
@@ -232,5 +235,6 @@ export default {
   getPdSpeDetail,
   addCarts,
   getCarts,
-  delcarts
+  delCarts,
+  addCartsNum
 }

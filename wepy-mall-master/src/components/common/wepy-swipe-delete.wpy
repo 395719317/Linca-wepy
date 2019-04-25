@@ -126,10 +126,13 @@ export default class Counter extends wepy.component {
         })
       }
     },
-    handleRightBtnTap(item) {
-      item = JSON.parse(JSON.stringify(item))
+    handleRightBtnTap(item,e) {
+      console.log('3e',e);
+      item = JSON.parse(JSON.stringify(item));
+      console.log('deb',item);
       delete item.style
-      this.$emit('delItem', item)
+      console.log('dea',item);
+      this.$emit('delItem', item,e)
     }
   }
 }

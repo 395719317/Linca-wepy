@@ -4,9 +4,6 @@
       <view class="list_box">
         <swipeDelete :swipeData="item" @delItem.user="handleDelItem">
           <!-- <view class="a-goods-conts {{item.ischecked? 'active':''}}"  > -->
-          <view class="p-num">
-            货号：{{item.sn_code}}
-          </view>
           <view class="goods-info">
             <icon class="icon_check" type="success" color="{{item.ischecked?'red':'rgb(153,153,153)'}}" @tap.stop="selectTap" data-index="{{index}}" data-id="{{item.id}}" size="20" />
             <view class="img-box">
@@ -18,11 +15,11 @@
                   {{item.goodsName}}
                 </navigator>
               </view>
+              <!--  -->
               <view class="lable">
-                <view class="goods-lable">{{item.name}}</view>
+                <view class="goods-lable">{{item.goodsSkuValName}}</view>
                 <view class="bo-label" wx:if="{{item.type==2}}">补货</view>
               </view>
-              <view class="stock-num">库存{{item.stock}}件</view>
               <view class="goods-price">¥ {{item.price}}</view>
               <view class="buy-num">
                 <view class="jian-btn {{item.num==1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}" data-id="{{item.id}}">-</view>
@@ -71,9 +68,6 @@
     }
     data = {
       list: [],
-      open_id:'',
-      m_id:'',
-      ids:'',
       noSelect: false,
       saveHidden: true,
       totalPrice: 0,
@@ -95,15 +89,14 @@
       console.log('shop_cart_json',json);
       if (json.data.code == 0) {
         let data = json.data;
-        console.log('data.items',data.items);
-        this.list = data.items;
-        this.totalPrice = data.total;
-        // for (var i = 0; i < this.list.length; i++) {
-        //   if (!this.list[i].ischecked) {
-        //     this.allChecked = false;
-        //     break;
-        //   }
-        // }
+        this.list = data.list;
+        this.totalPrice = data.totalPrice;
+        for (var i = 0; i < this.list.length; i++) {
+          if (!this.list[i].ischecked) {
+            this.allChecked = false;
+            break;
+          }
+        }
       } else {
         tip.error(json.data.msg)
       }
@@ -142,12 +135,10 @@
     async reduceGoodNum(id, num, index) {
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
       let openId = userSpecialInfo.openid;
-      let mid = userSpecialInfo.mid;
-      const json = await api.addCartsNum({
+      const json = await api.cartUpdateNum({
         query: {
-          open_id: openId,
-          m_id:mid,
-          cart_id: id,
+          openId: openId,
+          id: id,
           num: num
         }
       });
@@ -164,12 +155,10 @@
     async addGoodNum(id, num, index) {
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
       let openId = userSpecialInfo.openid;
-      let mid = userSpecialInfo.mid;
-      const json = await api.addCartsNum({
+      const json = await api.cartUpdateNum({
         query: {
-          open_id: openId,
-          m_id:mid,
-          cart_id: id,
+          openId: openId,
+          id: id,
           num: num
         }
       });
@@ -187,12 +176,10 @@
       var id = itemData.id;
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
       let openId = userSpecialInfo.openid;
-      let mid=userSpecialInfo.mid;
-      const json = await api.delCarts({
+      const json = await api.cartDel({
         query: {
-          open_Id: openId,
-          m_id:mid,
-          ids:id
+          openId: openId,
+          cartIdList: [id],
         }
       });
       if (json.data.code == 0) {
@@ -245,8 +232,7 @@
 
 
     methods = {
-      handleDelItem(itemData,e) {
-        console.log('fathere',e);
+      handleDelItem(itemData) {
         this.deleteGoods(itemData);
       },
       selectTap(e) {
@@ -327,16 +313,11 @@
 </script>
 
 <style lang="less">
-  .p-num{
-    padding-top:10rpx;
-  }
-  .stock-num{
-    font-size:26rpx;
-  }
   .goods-info {
+    border-bottom: 1px solid #eee;
     display: flex;
     justify-content: space-between;
-    padding: 10rpx 0 30rpx 0rpx;
+    padding: 70rpx 0 30rpx 0rpx;
     box-sizing: border-box;
     align-items: center;
     position: relative;
