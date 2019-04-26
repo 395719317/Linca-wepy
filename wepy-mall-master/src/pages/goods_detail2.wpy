@@ -164,7 +164,7 @@
             goods_id: this.gid,
             m_id:this.mid,
             open_id:this.openid,
-            product_id:pid
+            product_id:this.pid
           }
         });
       }else{
