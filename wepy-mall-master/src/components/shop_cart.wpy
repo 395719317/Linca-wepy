@@ -26,7 +26,7 @@
               <view class="goods-price">¥ {{item.price}}</view>
               <view class="buy-num">
                 <view class="jian-btn {{item.num==1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}" data-id="{{item.id}}">-</view>
-                <input type="number" value="{{item.num}}" disabled/>
+                <input type="number" value="{{item.num}}" bindinput="modifyNum"  data-id="{{item.id}}" data-index="{{index}}"   />
                 <view class="jia-btn {{item.num==1000? 'disabled' : ''}}" catchtap="jiaBtnTap" data-index="{{index}}" data-id="{{item.id}}">+</view>
               </view>
             </view>
@@ -78,7 +78,7 @@
       saveHidden: true,
       totalPrice: 0,
       operating: false,
-      allChecked: true
+      allChecked: false
     }
     //获取购物车商品列表
     async getCartList() {
@@ -97,13 +97,10 @@
         let data = json.data;
         console.log('data.items',data.items);
         this.list = data.items;
-        this.totalPrice = data.total;
-        // for (var i = 0; i < this.list.length; i++) {
-        //   if (!this.list[i].ischecked) {
-        //     this.allChecked = false;
-        //     break;
-        //   }
-        // }
+        for (var i = 0; i < this.list.length; i++) {
+          this.list[i].ischecked=false;
+        }
+        console.log('testischecked',this.list);
       } else {
         tip.error(json.data.msg)
       }
@@ -154,7 +151,9 @@
       if (json.data.code == 0) {
         // 购物车数据
         this.list[index].num = num;
-        this.totalPrice = this.totalPrice - this.list[index].price;
+        if(this.list[index].ischecked){
+          this.totalPrice = this.totalPrice - this.list[index].price;
+        }
         this.operating = false;
       } else {
         tip.error(json.data.msg)
@@ -176,13 +175,43 @@
       if (json.data.code == 0) {
         // 购物车数据
         this.list[index].num = num;
-        this.totalPrice = parseInt(this.totalPrice) + parseInt(this.list[index].price);
+          if(this.list[index].ischecked) {
+            this.totalPrice = parseInt(this.totalPrice) + parseInt(this.list[index].price);
+          }
         this.operating = false;
       } else {
         tip.error(json.data.msg)
       }
       this.$apply();
     }
+    async modifyGoodNum(id, num, index) {
+      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+      let openId = userSpecialInfo.openid;
+      let mid = userSpecialInfo.mid;
+      let curTotal = 0 ;
+      const json = await api.addCartsNum({
+        query: {
+          open_id: openId,
+          m_id:mid,
+          cart_id: id,
+          num: num
+        }
+      });
+      if (json.data.code == 0) {
+        // 购物车数据
+        this.list[index].num = num;
+        for (var i = 0; i < this.list.length; i++){
+          if(this.list[i].ischecked==true){
+            curTotal+=parseInt(this.list[i].price*this.list[i].num)
+          }
+        }
+        this.totalPrice=curTotal;
+      } else {
+        tip.error(json.data.msg)
+      }
+      this.$apply();
+    }
+
     async deleteGoods(itemData) {
       var id = itemData.id;
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
@@ -216,44 +245,58 @@
     }
 
     async checkAllGoods() {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      let check = 0;
-      if (!this.allChecked) {//原来未选中
-        check = 1;
-      }
-      const json = await api.cartCheckAll({
-        query: {
-          openId: openId,
-          check: check
-        }
-      });
-      if (json.data.code == 0) {
-        this.totalPrice = 0;
-        for (var i = 0; i < this.list.length; i++) {
-          this.list[i].ischecked = !this.allChecked;
-          if (!this.allChecked) {
-            this.totalPrice += parseInt(this.list[i].priceSubtotal);
+      if(this.list.length > 0){
+        if(this.allChecked){
+          this.allChecked = false
+          for (var i = 0; i < this.list.length; i++) {
+            this.list[i].ischecked = false
+              this.totalPrice = 0
+          }
+        }else{
+          this.allChecked = true
+          this.totalPrice = 0
+          for (var i = 0; i < this.list.length; i++) {
+            this.list[i].ischecked = true
+            this.totalPrice += parseInt(this.list[i].total)
           }
         }
-        this.allChecked = !this.allChecked;
-      } else {
-        tip.error(json.data.msg)
+
+        this.$apply();
       }
-      this.$apply();
     }
 
 
     methods = {
+       modifyNum(e){
+         var id = e.currentTarget.dataset.id;
+         var index = parseInt(e.currentTarget.dataset.index);
+         var num = e.detail.value;
+         this.modifyGoodNum(id, num, index);
+      },
       handleDelItem(itemData,e) {
         console.log('fathere',e);
         this.deleteGoods(itemData);
       },
       selectTap(e) {
         var id = e.currentTarget.dataset.id;
+        var allChecked=true;
+        this.totalPrice = 0
         var index = parseInt(e.currentTarget.dataset.index);
-        var ischecked = this.list[index].ischecked;
-        this.checkGoods(id, index, ischecked);
+        if(this.list[index].ischecked){
+          this.list[index].ischecked = false
+        }else{
+          this.list[index].ischecked = true
+        }
+        for (var i = 0; i < this.list.length; i++){
+          if(this.list[i].ischecked==true){
+            this.totalPrice+=parseInt(this.list[i].price*this.list[i].num)
+          }else{
+            allChecked=false;
+          }
+          this.allChecked=allChecked
+
+        }
+
       },
       selectAll() {
         console.log("sele....");
