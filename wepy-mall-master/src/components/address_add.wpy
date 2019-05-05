@@ -41,6 +41,12 @@
         </view>
       </view>
       <view class="list_item">
+        <view class="title">身份证号:</view>
+        <view class="input">
+          <input type="text" name="link_code"/>
+        </view>
+      </view>
+      <view class="list_item">
         <view class="title">所在地区:</view>
         <view class="input">
           <view @tap="openAddressPicker">{{province ? province.name : '省'}} - {{city ? city.name : '市' }} - {{area ? area.name : '区' }}</view>
@@ -51,6 +57,18 @@
         <view class="title">详细地址:</view>
         <view class="input">
           <input type="text" name="addressDetail"/>
+        </view>
+      </view>
+      <view class="list_item">
+        <view class="title">电子邮箱:</view>
+        <view class="input">
+          <input type="text" name="email"  />
+        </view>
+      </view>
+      <view class="list_item">
+        <view class="title">邮政编号:</view>
+        <view class="input">
+          <input type="text" name="postCode"  />
         </view>
       </view>
       <view class="list_item">
@@ -75,6 +93,7 @@ import {
 import AreaPicker from "./common/wepy-area-picker"
 export default class AddressAdd extends wepy.component {
   data = {
+    citys_name:'',
     isDefult: false,
     province: '',
     city: '',
@@ -96,14 +115,19 @@ export default class AddressAdd extends wepy.component {
       isDefult = 1;
     }
     let openId = userSpecialInfo.openid;
-    const json = await api.saveAddress({
+    let mid = userSpecialInfo.mid;
+    const json = await api.addAddress({
       query: {
-        openId: openId,
-        address: address,
-        isDef: isDefult,
-        province:that.provinceCode,
-        city:that.cityCode,
-        area:that.areaCode
+        open_id: openId,
+        m_id:mid,
+        link_name:address.receiverName,
+        link_code:address.link_code,
+        citys_name:this.citys_name,
+        link_adds:address.addressDetail,
+        link_tel:address.mobile,
+        link_email:address.email,
+        zip_code:address.postCode,
+        is_def: isDefult,
       }
     });
     if (json.data.code == 0) {
@@ -153,6 +177,7 @@ export default class AddressAdd extends wepy.component {
       this.provinceCode = province.code;
       this.cityCode = city.code;
       this.areaCode = area.code;
+      this.citys_name=this.province.name+" "+this.city.name+" "+this.area.name
       this.$apply();
     }
   }

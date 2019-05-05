@@ -4,10 +4,10 @@
     <addressList :list.sync="addressList" @currentPage.user="getCurrentPage"></addressList>
   </view>
   <view class="{{currentPage==1?'':'hidden'}}">
-    <addressAdd @currentPage.user="getCurrentPage"></addressAdd>
+    <addressAdd :addrcur.sync="currentPage"  @currentPage.user="getCurrentPage"></addressAdd>
   </view>
   <view class="{{currentPage==2?'':'hidden'}}">
-    <addressEdit @currentPage.user="getCurrentPage" ></addressEdit>
+    <addressEdit :addrcur.sync="currentPage" :addrid.sync="addrid" @currentPage.user="getCurrentPage" ></addressEdit>
   </view>
 </template>
 <script>
@@ -27,44 +27,58 @@ export default class Address extends wepy.page {
   data = {
     addressList: [],
     receiverInfo:{},
-
+    addrid:"",
     //显示当前组件 0 列表 1新增 2编辑
     currentPage: 0,
     type: "" //哪个页面跳转过来的
   }
 
-  async getUserAddress(phone,code) {
+  //地址列表的实现
+  async getUserAddress() {
     let that = this;
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let openId = userSpecialInfo.openid;
-    const json = await api.getUserAddress({
+    let open_id = userSpecialInfo.openid;
+    let m_id=userSpecialInfo.mid;
+    const json = await api.getAddress({
       query: {
-        openId: openId
+        open_id:open_id,
+        m_id:m_id
       }
     });
-
-    if (json.data.code == 0) {
-      this.addressList=json.data.list;
+    if (json.data.length > 0) {
+      this.addressList=json.data;
       this.$invoke("addressList","refreshList", this.addressList);
     } else {
       tip.error(json.data.msg)
     }
     that.showLoading = false;
   }
-
+  //获取该地址id的数据
+  //把数据作为参数传给edit页面fresh方法中
   async receiverInf(id) {
     let that = this;
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    const json = await api.receiverInfoById({
+    let open_id = userSpecialInfo.openid;
+    let m_id=userSpecialInfo.mid;
+    const json = await api.getAddress({
       query: {
-        id: id
+        open_id:open_id,
+        m_id:m_id,
       }
     });
-    if (json.data.code == 0) {
-      this.receiverInfo=json.data.receiverInfo;
+    //得到地址id的数据
+    if(json.data.length>0){
+      for(let i=0;i<json.data.length;i++){
+        let str=json.data[i].addres_id.replace(/(^\s*)|(\s*$)/g, "");
+        if(str==id){
+          this.receiverInfo=json.data[i];
+          this.$apply();
+          break;
+        }
+      }
+      //调用addressEdit组件方法
       this.$invoke("addressEdit","refresh", this.receiverInfo);
-      console.log("=================================")
-    } else {
+    }else {
       tip.error(json.data.msg)
     }
     that.showLoading = false;
@@ -77,10 +91,16 @@ export default class Address extends wepy.page {
   }
 
   onLoad(option) {
-    this.currentPage = 0;
+    this.currentPage = option.addrcur;
+    this.addrid=option.addrid;
+    if(option.addrcur=="2"){
+      this.receiverInf(option.addrid);
+      this.addrid='';
+    }
     this.getUserAddress();
     this.type = (option.type==undefined?"":option.type);
     this.$invoke("addressList","setOrgType", this.type);
+    this.$apply();
   }
 
   onShow(){

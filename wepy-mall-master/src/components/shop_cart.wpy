@@ -74,6 +74,8 @@
       open_id:'',
       m_id:'',
       ids:'',
+      order_list:[],
+      address:[],
       noSelect: false,
       saveHidden: true,
       totalPrice: 0,
@@ -84,18 +86,17 @@
     async getCartList() {
       let that = this;
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let mid=userSpecialInfo.mid||'';
-      let openid=userSpecialInfo.openid||'';
+      this.m_id=userSpecialInfo.mid||'';
+      this.open_id=userSpecialInfo.openid||'';
+      this.allChecked=false;
       const json = await api.getCarts({
         query: {
-          open_Id: openid,
-          m_id:mid
+          open_Id: this.open_id,
+          m_id:this.m_id
         }
       });
-      console.log('shop_cart_json',json);
       if (json.data.code == 0) {
         let data = json.data;
-        console.log('data.items',data.items);
         this.list = data.items;
         for (var i = 0; i < this.list.length; i++) {
           this.list[i].ischecked=false;
@@ -109,41 +110,13 @@
     onLoad() {
       let that = this;
       this.operating = false;
-      //that.list = bb.result.products;
-      //console.log(bb.result.products)
-      //that.getCartList();
     }
     computed = {}
-    async checkGoods(id, index, ischecked) {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      const json = await api.cartCheck({
-        query: {
-          openId: openId,
-          id: id
-        }
-      });
-      if (json.data.code == 0) {
-        // 购物车数据
-        this.list[index].ischecked = !ischecked;
-        if (this.list[index].ischecked) {
-          this.totalPrice += parseInt(this.list[index].priceSubtotal);
-        } else {
-          this.totalPrice -= parseInt(this.list[index].priceSubtotal);
-        }
-      } else {
-        tip.error(json.data.msg)
-      }
-      this.$apply();
-    }
     async reduceGoodNum(id, num, index) {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      let mid = userSpecialInfo.mid;
       const json = await api.addCartsNum({
         query: {
-          open_id: openId,
-          m_id:mid,
+          open_id: this.open_id,
+          m_id:this.m_id,
           cart_id: id,
           num: num
         }
@@ -161,13 +134,10 @@
       this.$apply();
     }
     async addGoodNum(id, num, index) {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      let mid = userSpecialInfo.mid;
       const json = await api.addCartsNum({
         query: {
-          open_id: openId,
-          m_id:mid,
+          open_id: this.open_id,
+          m_id:this.m_id,
           cart_id: id,
           num: num
         }
@@ -185,14 +155,11 @@
       this.$apply();
     }
     async modifyGoodNum(id, num, index) {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      let mid = userSpecialInfo.mid;
       let curTotal = 0 ;
       const json = await api.addCartsNum({
         query: {
-          open_id: openId,
-          m_id:mid,
+          open_id: this.open_id,
+          m_id:this.m_id,
           cart_id: id,
           num: num
         }
@@ -214,13 +181,10 @@
 
     async deleteGoods(itemData) {
       var id = itemData.id;
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      let mid=userSpecialInfo.mid;
       const json = await api.delCarts({
         query: {
-          open_Id: openId,
-          m_id:mid,
+          open_Id: this.openId,
+          m_id:this.mid,
           ids:id
         }
       });
@@ -299,7 +263,6 @@
 
       },
       selectAll() {
-        console.log("sele....");
         this.checkAllGoods();
       },
       getCartListMethod() {
@@ -334,29 +297,29 @@
         this.addGoodNum(id, num, index);
       },
       toPayOrder() {
-        let purType = 1,
-          prePurType = 1;
-        let bOneType = true;
-        let index = 0;
+        let checkList=[];
+        let ListStr='';
+        let orderInfo={};
         for (var i = 0; i < this.list.length; i++) {
+          let obj={};
           if (this.list[i].ischecked) {
-            purType = this.list[i].type;
-            if (index > 0) {
-              if (purType != prePurType) {
-                bOneType = false;
-                break;
-              }
-            }
-            prePurType = purType;
-            index++;
+            obj.cart_id = this.list[i].id;
+            obj.num = this.list[i].num;
+            obj.product_id = this.list[i].product_id;
+            checkList.push(obj);
           }
         }
-        if (!bOneType) {
-          tip.alert("先把补货的商品结算!");
+        if (checkList.length==0) {
+          tip.alert("请选择结算商品");
           return;
         }
-        wepy.navigateTo({
-          url: "/pages/comfire_order?purchasetype=" + purType
+        ListStr=JSON.stringify(checkList);
+        orderInfo={'orderList':ListStr,'tbuys':'cartbuy','open_id':this.open_id,'m_id':this.m_id};
+        wepy.setStorageSync(
+          'orderInfo',orderInfo
+        );
+         wepy.navigateTo({
+          url: "/pages/comfire_order?list=" + ListStr+"&tbuys=cartbuy&open_id="+this.open_id+"&m_id="+this.m_id
         })
       },
       goIndex() {

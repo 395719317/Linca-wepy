@@ -31,13 +31,19 @@
       <view class="list_item">
         <view class="title">收货人姓名:</view>
         <view class="input">
-          <input type="text" name="receiverName" value="{{editInfo.receiverName}}" />
+          <input type="text" name="receiverName" value="{{editInfo.link_name}}" />
         </view>
       </view>
       <view class="list_item">
         <view class="title">联系电话:</view>
         <view class="input">
-          <input type="text" name="mobile" value="{{editInfo.mobile}}"/>
+          <input type="text" name="mobile" value="{{editInfo.link_tel}}"/>
+        </view>
+      </view>
+      <view class="list_item">
+        <view class="title">身份证号:</view>
+        <view class="input">
+          <input type="text" name="link_code" value="{{editInfo.link_code}}"/>
         </view>
       </view>
       <view class="list_item">
@@ -50,7 +56,19 @@
       <view class="list_item">
         <view class="title">详细地址:</view>
         <view class="input">
-          <input type="text" name="addressDetail" value="{{editInfo.addressDetail}}" />
+          <input type="text" name="addressDetail" value="{{editInfo.link_adds}}" />
+        </view>
+      </view>
+      <view class="list_item">
+        <view class="title">电子邮箱:</view>
+        <view class="input">
+          <input type="text" name="email" value="{{editInfo.link_email}}" />
+        </view>
+      </view>
+      <view class="list_item">
+        <view class="title">邮政编号:</view>
+        <view class="input">
+          <input type="text" name="postCode" value="{{editInfo.zip_code}}" />
         </view>
       </view>
       <view class="list_item">
@@ -74,10 +92,23 @@ import {
 } from '@/utils/constant';
 import AreaPicker from "./common/wepy-area-picker"
 export default class AddressEdit extends wepy.component {
+  props = {
+
+    // 父向子单向动态传值
+    addrid: {
+      type: String,
+      default: 'null'
+    },
+    addrcur:{
+      type: String,
+      default: 'null'
+    }
+  };
 
   data = {
     isDefult: false,
     isCheck: false,
+    citys_name:'',
     editInfo: {
       default: {},
       type: Object
@@ -94,6 +125,7 @@ export default class AddressEdit extends wepy.component {
   components = {
     areaPicker: AreaPicker
   }
+  //在form中的数据，作为接口data
   async editAddress(address) {
     console.log("保存");
     let that = this;
@@ -103,17 +135,30 @@ export default class AddressEdit extends wepy.component {
       isDefult = 1;
     }
     let openId = userSpecialInfo.openid;
-    console.log("address:");
-    console.log(this.id);
-    const json = await api.saveAddress({
+    let mid = userSpecialInfo.mid;
+    if(this.citys_name==''||this.citys_name==undefined){
+        this.citys_name=this.province.name+" "+this.city.name+" "+this.area.name
+    }
+    var curid='';
+    console.log('2id---------',this.id);
+    if(this.id==''||this.id==null||this.id==undefined){
+      curid=this.addrid;
+    }else{
+      curid=this.id;
+    }
+    const json = await api.addAddress({
       query: {
-        openId: openId,
-        id: this.id,
-        address: address,
-        isDef: isDefult,
-        province:that.provinceCode,
-        city:that.cityCode,
-        area:that.areaCode
+        open_id: openId,
+        m_id:mid,
+        link_name:address.receiverName,
+        link_code:address.link_code,
+        id:curid,
+        citys_name:this.citys_name,
+        link_adds:address.addressDetail,
+        link_tel:address.mobile,
+        link_email:address.email,
+        zip_code:address.postCode,
+        is_def: isDefult,
       }
     });
     if (json.data.code == 0) {
@@ -130,12 +175,16 @@ export default class AddressEdit extends wepy.component {
     changeCheckBoxState() {
       this.isCheck = !this.isCheck;
       this.isDefult = !this.isDefult;
+      this.$apply();
     },
     formSubmit(e) {
 
       let receiverName = e.detail.value.receiverName;
       let mobile = e.detail.value.mobile;
       let addressDetail = e.detail.value.addressDetail;
+      let email=e.detail.value.addressDetail;
+      let linkCode=e.detail.value.linkCode;
+      let postCode=e.detail.value.postCode;
 
       if (receiverName == "") {
         tip.alert("输入收件人姓名");
@@ -153,48 +202,42 @@ export default class AddressEdit extends wepy.component {
       this.editAddress(e.detail.value);
       console.log('form发生了submit事件，携带数据为：', e.detail.value)
     },
+    //编辑地址数据填充
     refresh(val) {
-      console.log(val);
       if (val == undefined) return;
-      console.log("val.....", val);
       this.editInfo = val;
-      console.log(this.editInfo);
-      this.id = this.editInfo.id;
-      if(this.editInfo.isDef==1){
+      this.id = this.editInfo.addres_id;
+      console.log('1--id',this.id);
+      if(this.editInfo.is_def==1){
         this.isDefult=true
       }
-      console.log("==========ee=========");
-      console.log(this.isDefult);
-      this.province = { code: this.editInfo.provinceCode, name: this.editInfo.provinceName };
-      this.city = { code: this.editInfo.areaCode, name:this.editInfo.areaName };
-      this.area = { code: this.editInfo.cityCode, name: this.editInfo.cityName };
-
+      this.province = {name: this.editInfo.states };
+      this.city = { name:this.editInfo.citys };
+      this.area = { name: this.editInfo.comm_zones };
       this.$apply();
     },
+    //点击事件：打开选择地址弹窗
     openAddressPicker() {
       this.$invoke('areaPicker', 'openAddressPicker');
     },
     areaPickerArray(province, city, area) {
       this.province = province;
+      console.log('province',province);
       this.city = city;
       this.area = area;
-
       this.provinceCode = province.code;
       this.cityCode = city.code;
       this.areaCode = area.code;
+      this.citys_name=this.province.name+" "+this.city.name+" "+this.area.name
       this.$apply();
     }
   }
 
   onShow() {
-    console.log("========editInfo==========");
-
     this.province = { code: '120000', name: '天津市' };
     this.city = { code: '120100', name: '天津市' };
     this.area = { code: '120101', name: '和平区' };
     this.$invoke('areaPicker', 'setAddressPickerValue', this.province, this.city, this.area);
-
-
   }
 }
 

@@ -1,23 +1,24 @@
 <!--确认订单-->
 <template>
   <view class="comfire_order">
-    <view class="address" @tap="setAddress">
-      <view class="empty_address" wx:if="{{!is_exit_address}}">
+    <view class="address" >
+      <view class="empty_address" wx:if="{{hasAdd==0}}">
         <view class="title">设置收货地址</view>
         <view class="arrow">&gt;</view>
       </view>
       <view class="address_info" wx:else>
         <view class="title">
           <view class="user_info">
-            <text class="name">{{address.receiverName}}</text>
-            <text class="phone">{{address.mobile}}</text>
+            <text class="name">{{address.link_name}}</text>
+            <text class="phone">{{address.link_tel}}</text>
           </view>
-          <view class="active_address">
-            <text class="defult" wx:if="{{address.isdefault==1}}"> [默认]</text>
-            {{address.addressDetail}}
+          <view class="add-detail">
+            {{address.states}}{{address.citys}}{{address.zones}}{{address.link_adds}}
           </view>
+          <view class="link_code">身份证：{{address.link_code}}
+            <image @tap="editAddress" data-addrid="{{address.addres_id}}" data-cur="2" class="edit-adds" src="http://www.gopingtan.com/mobile/images/ddxq/icon-bj.png"/></view>
         </view>
-        <view class="arrow">&gt;</view>
+        <view class="arrow" @tap="setAddress" data-addrid="{{address.addres_id}}" data-cur="0">&gt;</view>
       </view>
     </view>
     <view class="spacing"></view>
@@ -25,22 +26,19 @@
 
 <view class="goodsList">
     <!--列表显示2个，绑定数据记得去掉，这里做调试-->
-<repeat for="{{list}}" key="index" index="index" item="item">
+<repeat for="{{items}}" key="index" index="index" item="item">
 <view class="list_box">
   <swipeDelete :swipeData="item" @delItem.user="handleDelItem">
+    <view class="sn_code">货号:{{item.sn_code}}</view>
       <view class="goods-info">
         <view class="img-box">
-          <image src="{{item.thumLogo}}" class="img" />
+          <image src="{{apiMall}}{{item.imgurl}}" class="img" />
         </view>
         <view class="text-box">
-          <view class="goods-title">{{item.goodsName}}</view>
+          <view class="goods-title">{{item.name}}</view>
           <view class="goods-label">{{item.goodsSkuValName}}</view>
-          <view class="goods-price">¥ {{item.price}}</view>
-          <view class="buy-num">
-            <view class="jian-btn {{item.num==1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}" data-id="{{item.id}}">-</view>
-            <input type="number" value="{{item.num}}" disabled/>
-            <view class="jia-btn " catchtap="jiaBtnTap" data-index="{{index}}" data-id="{{item.id}}">+</view>
-          </view>
+          <view class="goods-price">¥ {{item.total}}</view>
+          <view class="buy-num">x {{item.num}}</view>
         </view>
       </view>
   </swipeDelete>
@@ -60,11 +58,6 @@
         <view class="right input_box">
           <input bindinput="bindKeyInput" placeholder="对本次交易的说明" />
         </view>
-      </view>
-      <view class="spacing"></view>
-        <view class="block">
-        <view class="left total_jf">积分 \t共{{total_jf_num}}\t可用{{can_use_score}}</view>
-        <view class="right"><input type="number" class="dk-jf" value="{{jf_num}}" bindinput="jfInput" placeholder="输入抵扣积分"/></view>
       </view>
       <view class="spacing"></view>
       <view class="block">
@@ -98,13 +91,21 @@ export default class ComfireOrder extends wepy.page {
   }
 
   data = {
+    apiMall:"",
+    open_id:"",
+    m_id:"",
+    tbuys:"",
+    addrs_id:"",
+    curAddrs_id:"",
+    ids:"",
+    items:[],
     list: [],
+    liststr:'',
     goodsId: "",
     //卖家留言
     sellerMessage: "",
 
     //是否存在默认地址
-    is_exit_address: false,
     address: {},
     //总价
     totalPrice:0,
@@ -124,21 +125,28 @@ export default class ComfireOrder extends wepy.page {
   //获取订单详情
   async getOrderDetailInfo() {
     let that = this;
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let openId = userSpecialInfo.openid;
-    const json = await api.preOrder({
+    const json = await api.buyDetail({
       query: {
-        openId: openId,
-        goodsId: that.goodsId
+        open_id: this.m_id,
+        m_id: this.m_id,
+        tbuys:this.tbuys,
+        ids:this.list.join(",")
       }
     });
     if (json.data.code == 0) {
       let data = json.data;
-      this.list = data.goodsList;
+      this.items = data.items;
       this.totalPrice = data.totalPrice;
-      this.actualPrice = data.actualPrice;
-      this.is_exit_address = data.hasDefaultAddress;
-      this.address = data.defaultAddress;
+      this.actualPrice = data.total_all;
+      if(this.addrs_id==undefined||this.addrs_id==null||this.addrs_id==''){
+        console.log('data.adds',data.adds);
+
+        this.curAddrs_id=data.adds.addres_id;
+        console.log('curAddrs_id',this.curAddrs_id);
+        this.address = data.adds;
+        that.$apply();
+      }
+      this.hasAdd = Object.keys(data.adds).length;
       this.total_jf_num = data.userScore;
       this.can_use_score = data.canUseScore;
       this.deduScore = data.deduScore;
@@ -151,23 +159,41 @@ export default class ComfireOrder extends wepy.page {
     that.$apply();
   }
 
-  async getAddressInfo(id) {
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    const json = await api.receiverInfoById({
+  //用地址id得到地址信息
+  async getAddressInfo(addrId) {
+    this.curAddrs_id=addrId;
+    const json = await api.getAddress({
       query: {
-        id: id
+        open_id: this.open_id,
+        m_id:this.m_id
       }
-    });
-    if (json.data.code == 0) {
-      this.is_exit_address = true;
-      this.address=json.data.receiverInfo;
-    } else {
-      tip.error(json.data.msg)
+    })
+    let data=json.data;
+    for(let i = 0;i<data.length;i++){
+        if(data[i].addres_id==addrId){
+          this.address=data[i];
+          break;
+        }
     }
+    this.$apply();
   }
 
   onLoad(option) {
+    wx.checkSession({
+      success() {
+        console.log("处于登录态");
+      },
+      fail() {
+        console.log("需要重新登录");
+        wx.login() // 重新登录
+      }
+    });
     let that = this;
+    this.apiMall=api.apiMall;
+    this.open_id=option.open_id;
+    this.m_id=option.m_id;
+    this.tbuys=option.tbuys;
+    this.addrs_id=option.adds_id
     this.actualPrice = 0;
     this.totalPrice = 0;
     this.total_jf_num = 0;
@@ -177,32 +203,38 @@ export default class ComfireOrder extends wepy.page {
     this.jf_num = 0;
     this.reduce_fee = 0;
     this.operating = false;
+    this.liststr = option.list;
+    console.log(this.liststr.length);
+    console.log(this.liststr);
     that.goodsId = option.goodsId==undefined?"":option.goodsId;
     this.purchaseType = option.purchasetype==undefined?"1":option.purchasetype;
-    /*that.list = bb.result.products;
-    console.log(bb.result.products)*/
-    that.getOrderDetailInfo();
-    let from = option.from==undefined?"":option.from;
-    if (from=="selAdd") {
-      this.getAddressInfo(wepy.getStorageSync(ADDRESS_ID))
+    let optionObj=JSON.parse(option.list);
+    for(let i=0;i<optionObj.length;i++){
+      this.list.push(optionObj[i].cart_id);
     }
+    if(this.addrs_id!=undefined&&this.addrs_id!=null&&this.addrs_id!=''){
+      this.getAddressInfo(this.addrs_id);
+    }
+    that.getOrderDetailInfo();
   }
   computed = {
 
   }
 
-  async goToPay(formId) {
+  async goToPay() {
     //测试调用接口用，可注释
     tip.loading("提交订单中");
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
     let openId = userSpecialInfo.openid;
-    const json = await api.saveByCart({
+    let mid = userSpecialInfo.mid;
+    const json = await api.addOrderBuy({
       query: {
-        openId: openId,
-        receiverInfoId: this.address.id,
-        businessMessage: this.sellerMessage,
-        formId: formId,
-        reduceScore: this.jf_num
+        open_id: openId,
+        m_id:mid,
+        tbuys:'cartbuy',
+        cus_note:'111',
+        items:this.liststr,
+        addres_id:this.curAddrs_id
       }
     });
 
@@ -235,7 +267,6 @@ export default class ComfireOrder extends wepy.page {
           signType: 'MD5',
           paySign: pay.data.paySign,
           success: function (res) {
-            console.log('pay', res)
             setTimeout(() => {
               //支付成功 关闭loadding 跳转到支付成功页面
               tip.loaded();
@@ -350,22 +381,30 @@ export default class ComfireOrder extends wepy.page {
     },
     bindKeyInput(e) {
       this.sellerMessage = e.detail.value;
-      console.log("====" + e.detail.value);
     },
     async goPay(e) {
-      var fId = e.detail.formId;
-      if (!this.is_exit_address) {
+      console.log(e);
+      if (this.address.addres_id==''||this.address.addres_id==null||this.address.addres_id==undefined) {
         await tip.confirm('你未设置收货地址，请设置地址');
         wepy.navigateTo({
           url: "/pages/address?type=order"
         })
         return false;
       }
-      this.goToPay(fId);
+      this.goToPay();
     },
-    setAddress() {
+    setAddress(e) {
+      let addrid=e.target.dataset.addrid;
+      let addrcur=e.target.dataset.cur;
       wepy.navigateTo({
-        url: "/pages/address?type=order"
+        url: "/pages/address?addrid="+addrid+"&addrcur="+addrcur
+      })
+    },
+    editAddress(e) {
+      let addrid=e.target.dataset.addrid;
+      let addrcur=e.target.dataset.cur;
+      wepy.navigateTo({
+        url: "/pages/address?addrid="+addrid+"&addrcur="+addrcur
       })
     },
     jianBtnTap(e) {
@@ -462,6 +501,10 @@ export default class ComfireOrder extends wepy.page {
     }
     .defult {
       color: #ea4a3a;
+    }
+    .edit-adds{
+      height:30rpx;
+      width:30rpx;
     }
   }
   .address_info {

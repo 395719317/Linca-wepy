@@ -3,18 +3,18 @@
     <repeat for="{{addressList}}" key="index" index="index" item="item">
       <view class="list_box">
         <swipeDelete :swipeData="item" @delItem.user="handleDelItem">
-          <view class="address_list" @tap="tapSelAddress" data-id="{{item.id}}">
+          <view class="address_list" @tap="tapSelAddress" data-id="{{item.addres_id}}">
             <view class="title">
               <view class="user_info">
-                <text class="name">{{item.receiverName}}</text>
-                <text class="phone">{{item.mobile}}</text>
+                <text class="name">{{item.link_name}}</text>
+                <text class="phone">{{item.link_tel}}</text>
               </view>
               <view class="active_address">
-                <text class="defult" wx:if="{{item.isDef==1}}"> [默认]</text>
-                {{item.provinceName}} {{item.cityName}} {{item.areaName}} {{item.adressDetail}}
+                <text class="defult" wx:if="{{item.is_def==1}}"> [默认]</text>
+                {{item.states}} {{item.citys}} {{item.comm_zones}} {{item.link_adds}}
               </view>
             </view>
-            <view class="arrow"  @tap.stop="edit" data-id="{{item.id}}"><i class="iconfont icon-edit" ></i></view>
+            <view class="arrow"  @tap.stop="edit" data-id="{{item.addres_id}}"><i class="iconfont icon-edit" ></i></view>
           </view>
         </swipeDelete>
       </view>
@@ -34,6 +34,7 @@ import {
   ADDRESS_ID
 } from '@/utils/constant';
 export default class AddressList extends wepy.component {
+
   props = {
     addressList: {
       default: [{
@@ -53,16 +54,19 @@ export default class AddressList extends wepy.component {
     type: ""
   }
 
+  //删除地址
   async delUserAddress(id) {
     let that = this;
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    const json = await api.delUserAddress({
+    let open_id=userSpecialInfo.openid;
+    let m_id=userSpecialInfo.mid;
+    const json = await api.delAddress({
       query: {
-        id: id,
-        type:2
+        open_id: open_id,
+        m_id:m_id,
+        id:id
       }
     });
-
     if (json.data.code == 0) {
       console.log("删除成功");
       this.$emit('currentPage', 0);
@@ -84,15 +88,12 @@ export default class AddressList extends wepy.component {
     },
     //左滑删除
     handleDelItem(itemData) {
-      this.delUserAddress(itemData.id);
-      console.log("左滑删除")
-      console.log(itemData.id)
-
+      console.log('del-data',itemData);
+      this.delUserAddress(itemData.addres_id);
     },
 
     refreshList(val){
       if (val==undefined) return;
-      console.log("val.....",val);
       this.addressList = val;
       this.$apply();
     },
@@ -102,14 +103,14 @@ export default class AddressList extends wepy.component {
     },
 
     tapSelAddress(e) {
-      if (this.type!="order") {
-        return;
-      }
+      // if (this.type!="order") {
+      //   return;
+      // }
       var id = e.currentTarget.dataset.id;
-      console.log("id=="+id);
       wepy.setStorageSync(ADDRESS_ID,id);
+      let orderInfo = wepy.getStorageSync('orderInfo') || {};
       wepy.redirectTo({
-        url: "/pages/comfire_order?from=selAdd"
+        url: "/pages/comfire_order?list=" + orderInfo.orderList+"&tbuys=cartbuy&open_id="+orderInfo.open_id+"&m_id="+orderInfo.m_id+"&adds_id="+id
       })
     }
   }

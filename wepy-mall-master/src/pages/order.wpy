@@ -33,9 +33,10 @@ export default class Order extends wepy.page {
     placeholder: Placeholder
   }
   data = {
+    otag:'',
     winHeight: 0,
     totalCount: 0,
-    tabList: ["全部订单", "待支付", "待收货", "已完成"],
+    tabList: ["全部", "待支付", "待收货", "已完成","已取消","退款/售后"],
     orderList: [],
     currentPage: 1,
     is_empty: false,
@@ -57,30 +58,24 @@ export default class Order extends wepy.page {
   }
 
   async getMyOrder(currentPage, size,refresh) {
-
-    console.log("refresh值："+refresh);
     let that = this;
-    console.log("orderStatus值");
-    console.log("orderStatus值" + that.orderStatus);
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
     let openId = userSpecialInfo.openid;
-    const json = await api.getMyOrderList({
+    let mid = userSpecialInfo.mid;
+    const json = await api.getOrderList({
       query: {
-        openId: openId,
-        orderStatus: that.orderStatus,
-        receiveFlg : that.receiveFlg,
+        open_id: openId,
+        m_id:mid,
         page: currentPage || 1,
         size: size || 10,
-        type: 1 //正常单
+        otag: this.otag
       }
     });
     if (json.data.code == 0) {
-      console.log("json.data.list");
-      console.log(json.data.list);
       if (refresh) {
-        that.orderList = json.data.list;
+        that.orderList = json.data.items;
       } else {
-        that.orderList = [...that.orderList, ...json.data.list];
+        that.orderList = [...that.orderList, ...json.data.items];
       }
       that.page_total = json.data.page_total;
       that.totalCount = json.data.totalCount;
@@ -152,23 +147,31 @@ export default class Order extends wepy.page {
       console.log("cur");
       console.log(cur);
       if (cur == 0) {
-        console.log("所有订单类型");
-        that.orderStatus = "";
+        console.log("全部");
+        that.otag = "";
         that.getMyOrder();
       } else if (cur == 1) {
-        console.log("未付款订单类型");
-        that.orderStatus = 0;
+        console.log("待支付");
+        that.otag = 'paywait';
         that.getMyOrder();
       } else if (cur == 2) {
-        console.log("待收货订单类型");
-        that.orderStatus = 2;
-        that.receiveFlg=2;
+        console.log("待收货");
+        that.otag = 'tranwait';
         that.getMyOrder();
       } else if (cur == 3) {
 
-        console.log("已完成订单类型");
-        that.orderStatus = 4;
-        that.receiveFlg=4;
+        console.log("已发货");
+        that.otag = 'confwait';
+        that.getMyOrder();
+      } else if (cur == 4) {
+
+        console.log("已取消");
+        that.otag = 'cancels';
+        that.getMyOrder();
+      } else if (cur == 5) {
+
+        console.log("退款/售后");
+        that.otag = 'cases';
         that.getMyOrder();
       }
       that.$apply();
@@ -252,5 +255,9 @@ export default class Order extends wepy.page {
   color: #ff4856;
   border-bottom: 5rpx solid #ff4856;
 }
+.swiper-tab-list {
+   padding:0rpx;
+  }
+
 
 </style>
