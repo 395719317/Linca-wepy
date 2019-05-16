@@ -10,10 +10,11 @@ import 'wepy-async-function'
 export default class extends wepy.app {
   config = {
     pages: [
-      'pages/order',
-      'pages/shop_cart',
       'pages/authorize',
+      'pages/order',
+      'pages/applyAfterSale',
       'pages/home',
+      'pages/shop_cart',
       'pages/home_detail',
       'pages/classify',
       'pages/info',

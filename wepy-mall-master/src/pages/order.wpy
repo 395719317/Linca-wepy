@@ -4,7 +4,7 @@
     <tab @currentTab.user="getCurrentTab" :tabList.sync="tabList" :currentTab.sync="currentTab"></tab>
   </view>
   <scroll-view scroll-y="true" class="swiper-item-box" style="height:{{winHeight - 31}}px" bindscrolltolower="onReachBottom">
-    <orderItem :orderList.sync="orderList"></orderItem>
+    <orderItem :orderList.sync="orderList" :otag.sync="otag"></orderItem>
     <!--加载更多时动画-->
     <bottomLoadMore :show.sync="showLoading" message="正在加载"></bottomLoadMore>
     <!--暂无数据显示-->
@@ -36,7 +36,7 @@ export default class Order extends wepy.page {
     otag:'',
     winHeight: 0,
     totalCount: 0,
-    tabList: ["全部", "待支付", "待收货", "已完成","已取消","退款/售后"],
+    tabList: ["全部", "待支付", "待发货", "已完成","已取消","退款/售后"],
     orderList: [],
     currentPage: 1,
     is_empty: false,

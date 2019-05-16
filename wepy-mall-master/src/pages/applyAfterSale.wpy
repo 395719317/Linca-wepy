@@ -1,0 +1,424 @@
+<template>
+  <view class="container">
+    <view>
+      <view class="orderNum">订单编号:2019042800003</view>
+      <view>
+        <repeat for="{{goodsList}}">
+          <view class="item f_float" >
+            <view>
+              <image src="{{item.imgurl}}"></image>
+            </view>
+            <view>
+              <view class="goods_text">{{item.name}}</view>
+              <view class="goods_num">货号：{{item.sn_code}}</view>
+              <view class="f_float item_num">
+                <view class="price">￥{{item.prods_price}}</view>
+                <view class="num f_float">
+                  <button data-index="{{index}}" data-maxnum="{{item.prods_num}}" catchtap="minusBtnTap">-</button>
+                  <input data-index="{{index}}" data-maxnum="{{item.prods_num}}" bindinput="bindNumInput" type="number" value="{{item.curNum}}"/>
+                  <button data-index="{{index}}" data-maxnum="{{item.prods_num}}" catchtap="plusBtnTap">+</button>
+                </view>
+              </view>
+            </view>
+          </view>
+        </repeat>
+      </view>
+
+      <view class="total">
+        <text class="total_price" space="ensp">退款金额: ￥{{total}}     运费: ￥{{freight}}</text>
+      </view>
+    </view>
+
+
+    <view class="apply_detail">
+      <view class="f_float" wx-if="{{isRefund}}">
+        <view>*退还商品金额</view><view>¥</view><input  bindinput="bindCurTotalInput"  type="number" value="{{curTotal}}" />
+      </view>
+      <view class="f_float bg" wx-if="{{isRefund}}">
+        <view>退款金额不能超过商品金额</view>
+      </view>
+      <view class="f_float" wx-if="{{isRefund}}">
+        <view>*退还运费</view><view>¥</view><input bindinput="bindCurFreightInput"  type="number" value="{{curFreight}}" />
+      </view>
+      <view class="f_float bg" wx-if="{{isRefund}}">
+        <view>退款金额不能超过商品金额</view>
+      </view>
+      <view class="f_float type">
+        <view>售后类型</view>
+        <view class="type_sel" @tap="openMark">{{curType}}></view>
+      </view>
+      <view class="f_float">
+        <view>*填写客户名字</view><input type="text" bindinput="bindNameInput" value="{{name}}"/>
+      </view>
+      <view class="f_float">
+        <view>*填写客户手机</view><input type="text" bindinput="bindTelInput" value="{{tel}}"/>
+      </view>
+      <view class="f_float">
+        <view>*填写退货原因</view><input type="text" bindinput="bindReasonInput"  value="{{reasonText}}"/>
+      </view>
+    </view>
+
+
+    <view class="submit" @tap="submit">
+      提交申请
+    </view>
+    <view class="mark" wx-if="{{markShow}}">
+    </view>
+    <view class="mark_type" wx-if="{{markShow}}">
+      <view @tap="getSelType" data-num="1">退款</view>
+      <view @tap="getSelType" data-num="2">仅退款</view>
+      <view @tap="getSelType" data-num="3">换货</view>
+    </view>
+  </view>
+
+
+</template>
+<script>
+  import wepy from 'wepy';
+  import Tab from '@/components/tab'
+  import {
+    SYSTEM_INFO,
+    USER_SPECICAL_INFO
+  } from '@/utils/constant';
+  import OrderItem from '@/components/order_item'
+  import BottomLoadMore from "../components/common/bottomLoadMore"
+  import Placeholder from "../components/common/placeholder"
+  import api from '@/api/api';
+
+  export default class Order extends wepy.page {
+    config = {
+      navigationBarTitleText: "申请售后",
+    }
+    components = {}
+    data = {
+      orders_id:"",
+      goodsList: [],
+      submitList:[],
+      markShow:false,
+      curType:"选择",
+      curTypeNum:'1',
+      isSel:false,
+      isRefund:true,
+      order_num:'',
+      total:0,
+      curTotal:0,
+      freight:0.00,
+      curFreight:0.00,
+      name:'',
+      tel:'',
+      reasonText:''
+    }
+    async submit(){
+      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+      let openid = userSpecialInfo.openid;
+      let mid = userSpecialInfo.mid;
+      let list = [] ;
+      for(var i in this.goodsList){
+        list.push({});
+        list[i].order_item_id=this.goodsList[i].order_items_id;
+        list[i].num=this.goodsList[i].curNum.toString();
+      }
+      let listStr=JSON.stringify(list);
+      console.log('listStr',listStr);
+      console.log('listStr',listStr.length);
+      const json = await api.addAfterSale({
+        query: {
+          open_id: openid,
+          m_id: mid,
+          orders_id: this.orders_id,
+          reason: this.curTypeNum,
+          prods_price: this.curTotal,
+          trans_price: this.curFreight,
+          cus_name: this.name,
+          cus_tel:this.tel,
+          service_note:this.reasonText,
+          items:listStr
+        }
+      });
+    }
+    async getAfterSale(id) {
+      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+      let openid = userSpecialInfo.openid;
+      let mid = userSpecialInfo.mid;
+      const json = await api.getAfterSale({
+        query: {
+          open_id: openid,
+          m_id: mid,
+          id: id
+        }
+      });
+      if(json.data.items.length>0){
+        for(let i=0 ;i<json.data.items.length;i++){
+          json.data.items[i].curNum=0;
+        }
+        this.goodsList=json.data.items;
+      }
+      console.log('getAfterSale',json);
+      console.log('goodsList',this.goodsList);
+      this.$apply();
+    }
+
+    getTotal(){
+      let total=0;
+      let list=this.goodsList;
+      for(var i in this.goodsList){
+        total+=this.goodsList[i].curNum * this.goodsList[i].prods_price;
+      }
+      this.total=total;
+      console.log('this.total',this.total)
+    }
+    tip(text,num){
+      wx.showToast({
+        title: text+num,
+        icon: "none",
+        mask: true,
+        duration: 2000
+      });
+    }
+
+    onLoad(opts) {
+      let orderid=opts.orderid || '';
+      this.orders_id = orderid;
+      if (orderid != '') {
+        this.getAfterSale(orderid);
+      }
+
+    }
+
+    computed = {}
+    methods = {
+      minusBtnTap(e){
+        console.log('-',e);
+        let index=e.target.dataset.index;
+        if (this.goodsList[index].curNum > 0) {
+          this.goodsList[index].curNum--;
+        }
+        this.getTotal();
+        this.$apply();
+      },
+      plusBtnTap(e){
+        console.log('+',e);
+        let index=e.target.dataset.index;
+        let num=e.target.dataset.maxnum;
+        if (this.goodsList[index].curNum < num) {
+          this.goodsList[index].curNum++;
+        }
+        this.getTotal();
+        this.$apply();
+      },
+      bindNumInput(e){
+        console.log('input',e);
+        let index=e.currentTarget.dataset.index;
+        let num=e.currentTarget.dataset.maxnum;
+        let curNum = e.detail.value;
+        if (curNum > num) {
+          this.tip('最大数量为',num);
+          this.goodsList[index].curNum=num;
+        }else{
+          this.goodsList[index].curNum=curNum;
+        }
+        if(curNum<0){
+          this.tip('最小数量为','0');
+          this.goodsList[index].curNum=0;
+        }
+        this.getTotal();
+        this.$apply();
+      },
+      bindCurTotalInput(e){
+        let curTotal = e.detail.value;
+        if(curTotal>this.total){
+          this.tip('最大退款金额为',this.total);
+          this.curTotal=this.total;
+        }else{
+          this.curTotal=curTotal;
+        }
+        this.$apply();
+      },
+      bindCurFreightInput(e){
+        let freight = e.detail.value;
+        if(freight>this.freight){
+          this.tip('最大退还运费金额',this.freight);
+          this.curFreight=this.freight;
+        }
+        this.$apply();
+      },
+      bindNameInput(e){
+        let name = e.detail.value;
+        this.name=name;
+      },
+      bindTelInput(e){
+        let tel = e.detail.value;
+        this.tel=tel;
+      },
+      bindReasonInput(e){
+        let reason = e.detail.value;
+        this.reasonText=reason;
+      },
+      openMark(e){
+        this.markShow=true;
+        this.$apply();
+      },
+      getSelType(e){
+        console.log(e);
+        this.curType=e._relatedInfo.anchorTargetText;
+        this.curTypeNum=e.target.dataset.num;
+        this.markShow=false;
+        if(this.curTypeNum==3){
+          this.isRefund=false;
+        }else{
+          this.isRefund=true;
+        }
+        this.$apply();
+      },
+      submit(){
+        this.submit();
+      }
+    }
+    events = {}
+    watch = {}
+  }
+
+</script>
+<style lang="less">
+  .container {
+    margin-bottom:180rpx;
+    border-top: 20rpx solid #f2f2f2;
+    .item {
+      padding-top: 30rpx;
+      padding-bottom: 30rpx;
+      border-bottom: 1rpx solid #f2f2f2;
+      .price {
+
+      }
+      .item_num {
+        position: relative;
+      }
+      .num {
+        position: absolute;
+        right: 0;
+        button::after {
+          border-radius: 0;
+          border: none;
+        }
+        button {
+          display: table;
+          border-radius: 0;
+          height: 42rpx;
+          width: 50rpx;
+          border: 1rpx solid #c3c3c3;
+          background: white;
+          line-height: 42rpx;
+          text-align: center;
+          margin: 0;
+          padding-left: 12rpx;
+          padding-right: 12rpx;
+        }
+
+        input {
+          outline: none;
+          border: none;
+          list-style: none;
+          border-top: 1rpx solid #c3c3c3;
+          border-bottom: 1rpx solid #c3c3c3;
+          height: 42rpx;
+          width: 80rpx;
+          line-height: 42rpx;
+          text-align: center;
+          min-height: 42rpx;
+
+        }
+        .num_title {
+          line-height: 90rpx;
+
+        }
+      }
+      image {
+        height: 210rpx;
+        width: 210rpx;
+        padding-left: 20rpx;
+        padding-right: 20rpx;
+      }
+    }
+    .total {
+      background: white;
+      height: 80rpx;
+      position: relative;
+      .total_price {
+        line-height:80rpx;
+        right: 0;
+        position: absolute;
+      }
+    }
+
+    .orderNum {
+      height: 70rpx;
+      border-bottom: 2rpx solid #f2f2f2;
+      padding-left: 10rpx;
+      line-height: 70rpx;
+    }
+    .apply_detail {
+      >view{
+        height:80rpx;
+        line-height:80rpx;
+        border-bottom:1rpx solid #f2f2f2;
+        padding-left:20rpx;
+        padding-right:20rpx;
+      }
+      input{
+        line-height:25rpx;
+        margin:auto 20rpx ;
+        width:60%;
+      }
+      border-top: 30rpx solid #f2f2f2;
+      .bg{
+        background:#f2f2f2;
+      }
+      .type>view{
+        width:50%;
+      }
+      .type_sel{
+        text-align: right;
+      }
+    }
+    .submit{
+      height:100rpx;
+      width:100%;
+      line-height:100rpx;
+      text-align: center;
+      background:#00b4ff;
+      color:white;
+      position:fixed;
+      bottom:0;
+      z-index:9997;
+    }
+    .mark{
+      height:100vh;
+      width:100vw;
+      background-color:#000000;
+      position:fixed;
+      z-index:9998;
+      opacity:0.3;
+      top:0;
+    }
+    .mark_type{
+      position:fixed;
+      background-color:white;
+      opacity:1;
+      box-sizing: border-box;
+      border-radius:30rpx;
+      width:90%;
+      left:5%;
+      top:30%;
+      z-index:9999;
+      >view{
+        height:80rpx;
+        border-bottom:1rpx solid #ccc;
+        text-align: center;
+        line-height:80rpx;
+      }
+
+    }
+  }
+
+
+</style>

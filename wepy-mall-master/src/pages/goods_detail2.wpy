@@ -116,7 +116,7 @@
       <navigator class="s_cart" open-type="switchTab" url="/pages/shop_cart">
       </navigator>
       <view class="a_cart" bindtap="addOrder">加入购物车</view>
-      <view class="b_now">立即购买</view>
+      <view class="b_now" @tap="goPay">立即购买</view>
     </view>
   </view>
 
@@ -197,6 +197,18 @@
         }
       });
 
+    }
+
+    async goPay(){
+      console.log('[{ \'product_id\':'+this.pid + ',' + '\'num\':' + this.order_num + '}]');
+      let json = await api.wxBuy({
+        query: {
+          m_id:this.mid,
+          open_id:this.openid,
+          tbuys:'prods',
+          items:'[{ \"product_id\":'+this.pid + ',' + '\"num\":' + this.order_num + '}]'
+        }
+      });
     }
     components = {}
 

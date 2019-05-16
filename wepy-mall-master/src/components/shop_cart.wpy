@@ -183,8 +183,8 @@
       var id = itemData.id;
       const json = await api.delCarts({
         query: {
-          open_Id: this.openId,
-          m_id:this.mid,
+          open_Id: this.open_id,
+          m_id:this.m_id,
           ids:id
         }
       });

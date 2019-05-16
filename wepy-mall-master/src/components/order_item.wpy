@@ -36,19 +36,19 @@
     </view>
     <view wx:elif="{{item.auditStatus==-1}}">
       <view class="btn_group">
-        <view class="btn btn_del" @tap="delOrder" data-id="{{item.id}}">删除订单</view>
+        <view class="btn btn_del" @tap="cancelOrder" data-id="{{item.id}}">删除订单</view>
       </view>
     </view>
     <view wx:else>
       <view class="btn_group">
-        <view class="btn btn_del" @tap="delOrder" data-id="{{item.id}}" wx:if="{{item.otag_name=='订单未付款'}}">取消订单</view>
+        <view class="btn btn_del" @tap="cancelOrder" data-id="{{item.id}}" wx:if="{{item.otag_name=='订单未付款'}}">取消订单</view>
         <view class="btn btn_pay" @tap="payMoney" data-id="{{item.id}}"  wx:if="{{item.otag_name=='订单未付款'}}">立即付款</view>
         <view class="btn btn_pay" @tap="completion" data-id="{{item.id}}" wx:if="{{item.otag_name=='订单已取消'}}">已取消</view>
-        <view class="btn btn_pay" @tap="afterSale" data-id="{{item.id}}" wx:if="{{item.otag_name=='订单已付款'}}">申请售后</view>
+        <view class="btn btn_pay" @tap="afterSale" data-id="{{item.id}}" wx:if="{{item.otag_name=='订单已付款'&&item.case_fal==false}}">申请售后</view>
+        <view class="btn btn_pay" @tap="afterSaleDetail" data-id="{{item.id}}" wx:if="{{item.case_fal}}">查看售后</view>
       </view>
     </view>
   </view>
-
   </view>
 </repeat>
 </view>
@@ -70,6 +70,9 @@ export default class orderItem extends wepy.component {
       flag:"",
       orderNo:"",
       list:[]
+    },
+    otag:{
+      default:''
     }
   }
 
@@ -100,36 +103,57 @@ export default class orderItem extends wepy.component {
   }
 
   methods = {
-    async delOrder(e) {
-      this.flag=2;
-      this.orderNo = e.currentTarget.dataset.id;
-      await tip.confirm('是否删除订单');
-      console.log(this.flag);
-      this.editOrderInfo(this.orderNo,this.flag);
-      console.log("删除成功")
+    async cancelOrder(e) {
+      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+      let openid = userSpecialInfo.openid;
+      let mid=userSpecialInfo.mid;
+      let id=e.currentTarget.dataset.id||'';
+      const json = await api.cancelOrder({
+        query: {
+          open_id: openid,
+          m_id:mid,
+          id:id
+        }
+      });
+        for (let i = 0; i < this.orderList.length; i++){
+          if(this.orderList[i].id==id) {
+            if(this.otag == ''){
+             this.orderList[i].otag_name='订单已取消';
+            }
+            else{
+               this.orderList.splice(i,1);
+           }
+            break;
+          }
 
+        }
+
+      this.$apply();
     },
       async completion(e) {
       this.flag=3;
       this.orderNo = e.currentTarget.dataset.id;
       await tip.confirm('是否确认收货');
       this.editOrderInfo(this.orderNo,this.flag);
-      console.log("完成")
     },
     async afterSale(e){
-
-    }
-
+      let id = e.currentTarget.dataset.id||'';
+      wepy.navigateTo({
+        url: "/pages/applyAfterSale?orderid="+id
+      })
+    },
     async payMoney(e) {
-      this.orderNo = e.currentTarget.dataset.id;
+      let id = e.currentTarget.dataset.id;
       let tradeNo = e.currentTarget.dataset.tradeno;
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
       let openId = userSpecialInfo.openid;
+      let mid = userSpecialInfo.mid;
 
-      const pay = await api.toPay({
+      const json = await api.orderBuy({
         query:{
-          openId: openId,
-          orderNo: tradeNo
+          open_id: openId,
+          m_id:mid,
+            id:id
         }
       });
       if (pay.data.code==0) {
@@ -142,7 +166,6 @@ export default class orderItem extends wepy.component {
           signType: 'MD5',
           paySign: pay.data.paySign,
           success: function (res) {
-            console.log('pay', res)
             setTimeout(() => {
               //支付成功 关闭loadding 跳转到支付成功页面
               tip.loaded();
@@ -162,8 +185,6 @@ export default class orderItem extends wepy.component {
   }
 
   onLoad() {
-    console.log("===========lzz返回数据lzz=========")
-    console.log(this.orderList);
   }
 }
 
