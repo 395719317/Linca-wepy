@@ -1,0 +1,208 @@
+<template>
+  <view class="container">
+    <view>
+      <view class="orderNum">售后编号:2019042800003</view>
+      <view>
+        <repeat for="{{goodsList}}">
+          <view class="item f_float" >
+            <view>
+              <image src="{{item.imgurl}}"></image>
+            </view>
+            <view>
+              <view class="goods_text">{{item.name}}</view>
+              <view class="goods_num">货号：{{item.sn_code}}</view>
+              <view class="f_float item_num">
+                <view class="price">￥{{item.prods_price}}</view>
+                <view class="num f_float">x1</view>
+              </view>
+            </view>
+          </view>
+        </repeat>
+      </view>
+
+      <view class="total">
+        <text class="total_price" space="ensp">退款金额: ￥{{total}}     运费: ￥{{freight}}</text>
+      </view>
+    </view>
+
+
+    <view class="apply_detail">
+        <view class="f_float detail_head">
+          <view>售后申请提交</view>
+          <view class="detail_time">2019-01-19 14:35:42</view>
+        </view>
+        <view class="detail_text">用户申请退款，退款原因：重拍；金额：￥65.00；运费：0.00</view>
+    </view>
+
+  </view>
+
+
+</template>
+<script>
+  import wepy from 'wepy';
+  import Tab from '@/components/tab'
+  import {
+    SYSTEM_INFO,
+    USER_SPECICAL_INFO
+  } from '@/utils/constant';
+  import OrderItem from '@/components/order_item'
+  import BottomLoadMore from "../components/common/bottomLoadMore"
+  import Placeholder from "../components/common/placeholder"
+  import api from '@/api/api';
+
+  export default class Order extends wepy.page {
+    config = {
+      navigationBarTitleText: "售后中/售后成功",
+    }
+    components = {}
+    data = {
+      orders_id:"",
+      goodsList: [],
+      submitList:[],
+      markShow:false,
+      curType:"选择",
+      curTypeNum:'1',
+      isSel:false,
+      isRefund:true,
+      order_num:'',
+      total:0,
+      curTotal:0,
+      freight:0.00,
+      curFreight:0.00,
+      name:'',
+      tel:'',
+      reasonText:''
+    }
+
+    async getAfterSale(id) {
+      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+      let openid = userSpecialInfo.openid;
+      let mid = userSpecialInfo.mid;
+      const json = await api.getAfterSale({
+        query: {
+          open_id: openid,
+          m_id: mid,
+          id: id
+        }
+      });
+      if(json.data.items.length>0){
+        this.goodsList=json.data.items;
+      }
+      this.$apply();
+    }
+    onLoad(opts) {
+      let orderid=opts.orderid || '';
+      this.orders_id = orderid;
+      if (orderid != '') {
+        this.getAfterSale(orderid);
+      }
+    }
+
+    computed = {}
+    methods = {}
+    events = {}
+    watch = {}
+  }
+
+</script>
+<style lang="less">
+  .container {
+    margin-bottom:180rpx;
+    border-top: 20rpx solid #f2f2f2;
+    .item {
+      padding-top: 30rpx;
+      padding-bottom: 30rpx;
+      border-bottom: 1rpx solid #f2f2f2;
+      .price {
+
+      }
+      .item_num {
+        position: relative;
+      }
+      .num {
+        position: absolute;
+        right: 0;
+        button::after {
+          border-radius: 0;
+          border: none;
+        }
+        button {
+          display: table;
+          border-radius: 0;
+          height: 42rpx;
+          width: 50rpx;
+          border: 1rpx solid #c3c3c3;
+          background: white;
+          line-height: 42rpx;
+          text-align: center;
+          margin: 0;
+          padding-left: 12rpx;
+          padding-right: 12rpx;
+        }
+
+        input {
+          outline: none;
+          border: none;
+          list-style: none;
+          border-top: 1rpx solid #c3c3c3;
+          border-bottom: 1rpx solid #c3c3c3;
+          height: 42rpx;
+          width: 80rpx;
+          line-height: 42rpx;
+          text-align: center;
+          min-height: 42rpx;
+
+        }
+        .num_title {
+          line-height: 90rpx;
+
+        }
+      }
+      image {
+        height: 210rpx;
+        width: 210rpx;
+        padding-left: 20rpx;
+        padding-right: 20rpx;
+      }
+    }
+    .total {
+      background: white;
+      height: 80rpx;
+      position: relative;
+      .total_price {
+        line-height:80rpx;
+        right: 20rpx;
+        position: absolute;
+      }
+    }
+
+    .orderNum {
+      height: 70rpx;
+      border-bottom: 2rpx solid #f2f2f2;
+      padding-left: 10rpx;
+      line-height: 70rpx;
+    }
+    .apply_detail {
+      border-top: 30rpx solid #f2f2f2;
+      background-color:white;
+      .detail_head>view{
+        height:80rpx;
+        line-height:80rpx;
+        width:50%;
+        padding:0 20rpx;
+      }
+      .detail_time{
+        text-align: right;
+      }
+      .detail_text{
+        line-height:60rpx;
+        border-bottom:1rpx solid #f2f2f2;
+        padding-left:20rpx;
+        padding-right:20rpx;
+      }
+      .bg{
+        background:#f2f2f2;
+      }
+    }
+  }
+</style>

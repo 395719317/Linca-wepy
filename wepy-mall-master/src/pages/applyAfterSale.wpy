@@ -1,7 +1,7 @@
 <template>
   <view class="container">
     <view>
-      <view class="orderNum">订单编号:2019042800003</view>
+      <view class="orderNum">订单编号:{{ord_code}}</view>
       <view>
         <repeat for="{{goodsList}}">
           <view class="item f_float" >
@@ -92,6 +92,7 @@
     components = {}
     data = {
       orders_id:"",
+      ord_code:"",
       goodsList: [],
       submitList:[],
       markShow:false,
@@ -147,13 +148,14 @@
           id: id
         }
       });
-      if(json.data.items.length>0){
-        for(let i=0 ;i<json.data.items.length;i++){
-          json.data.items[i].curNum=0;
+      if(json.data.items.length > 0){
+        this.ord_code=json.data.ord_code ;
+        for(let i=0 ;i<json.data.items.length ; i++){
+          json.data.items[i].curNum = 0;
         }
         this.goodsList=json.data.items;
       }
-      console.log('getAfterSale',json);
+      console.log('getAfterSale', json);
       console.log('goodsList',this.goodsList);
       this.$apply();
     }
@@ -343,9 +345,10 @@
       background: white;
       height: 80rpx;
       position: relative;
+      padding-right:10rpx;
       .total_price {
         line-height:80rpx;
-        right: 0;
+        right: 20rpx;
         position: absolute;
       }
     }
