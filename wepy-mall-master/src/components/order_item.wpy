@@ -44,7 +44,7 @@
         <view class="btn btn_del" @tap="cancelOrder" data-id="{{item.id}}" wx:if="{{item.otag_name=='订单未付款'}}">取消订单</view>
         <view class="btn btn_pay" @tap="payMoney" data-id="{{item.id}}"  wx:if="{{item.otag_name=='订单未付款'}}">立即付款</view>
         <view class="btn btn_pay" @tap="completion" data-id="{{item.id}}" wx:if="{{item.otag_name=='订单已取消'}}">已取消</view>
-        <view class="btn btn_pay" @tap="afterSale" data-id="{{item.id}}" wx:if="{{item.otag_name=='订单已付款'&&item.case_fal==false}}">申请售后</view>
+        <view class="btn btn_pay" @tap="afterSale" data-id="{{item.id}}" wx:if="{{item.otag_name=='订单已付款'&&!item.case_fal}}">申请售后</view>
         <view class="btn btn_pay" @tap="afterSaleDetail" data-id="{{item.id}}" wx:if="{{item.case_fal}}">查看售后</view>
       </view>
     </view>
@@ -140,6 +140,12 @@ export default class orderItem extends wepy.component {
       let id = e.currentTarget.dataset.id||'';
       wepy.navigateTo({
         url: "/pages/applyAfterSale?orderid="+id
+      })
+    },
+    async afterSaleDetail(e){
+      let id = e.currentTarget.dataset.id||'';
+      wepy.navigateTo({
+        url: "/pages/afterSaleDetail?orderid="+id
       })
     },
     async payMoney(e) {
