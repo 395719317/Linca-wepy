@@ -33,12 +33,14 @@ export default class Order extends wepy.page {
     placeholder: Placeholder
   }
   data = {
+    size : 10,
     otag:'',
     winHeight: 0,
     totalCount: 0,
     tabList: ["全部", "待支付", "待发货", "已完成","已取消","退款/售后"],
     orderList: [],
     currentPage: 1,
+    page_total:1,
     is_empty: false,
     orderStatus: "",
     currentTab: 0,
@@ -57,7 +59,7 @@ export default class Order extends wepy.page {
     receiveFlg : 0
   }
 
-  async getMyOrder(currentPage, size,refresh) {
+  async getMyOrder(currentPage,refresh) {
     let that = this;
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
     let openId = userSpecialInfo.openid;
@@ -67,7 +69,7 @@ export default class Order extends wepy.page {
         open_id: openId,
         m_id:mid,
         page: currentPage || 1,
-        size: size || 10,
+        size: this.size || 20,
         otag: this.otag
       }
     });
@@ -127,7 +129,7 @@ export default class Order extends wepy.page {
     let title = "";
     that.orderList = [];
     that.currentTab = opts.type;
-    that.getMyOrder();
+    that.getMyOrder(1,false);
     //设置滚动高度
     let systemInfo = wepy.getStorageSync(SYSTEM_INFO);
     that.winHeight = systemInfo.windowHeight;
@@ -213,30 +215,12 @@ export default class Order extends wepy.page {
     //判断总页数是否大于翻页数
     if ((that.page_total) > that.currentPage) {
       //防止重复加载
-      if (that.preventRepeatReuqest) {
-        return true;
-      }
-      that.preventRepeatReuqest = true;
-      that.currentPage++;
-      console.log(this.currentTab);
-      if (this.currentTab == 0) {
-        console.log("所有订单类型");
-        that.getMyOrder(that.currentPage);
-      } else if (this.currentTab == 1) {
-        console.log("未付款订单类型");
-        that.orderStatus = 0;
-        that.getMyOrder(that.currentPage);
-      } else if (this.currentTab == 2) {
-        console.log("待发货订单类型");
-        that.orderStatus = 2;
-        that.receiveFlg=2;
-        that.getMyOrder(that.currentPage);
-      } else if (this.currentTab == 3) {
-        console.log("已完成订单类型");
-        that.orderStatus = 4;
-        that.getMyOrder(that.currentPage);
-      }
-      that.preventRepeatReuqest = false;
+      // if (that.preventRepeatReuqest) {
+      //   return true;
+      // }
+      that.currentPage++ ;
+      this.getMyOrder(that.currentPage,false)
+
     } else {
       that.showLoading = false;
     }
