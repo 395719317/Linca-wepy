@@ -162,15 +162,16 @@ export default class orderItem extends wepy.component {
             id:id
         }
       });
-      if (pay.data.code==0) {
+      console.log('payjson',json);
+      if (json.data.code==0) {
         //以下是微信支付
         wx.requestPayment({
-          appId: pay.data.appId,
-          timeStamp: pay.data.timeStamp,
-          nonceStr: pay.data.nonceStr,
-          package: pay.data.package,
+          appId:'wx713756582acec099',
+          timeStamp: json.data.pay.timeStamp,
+          nonceStr: json.data.pay.nonceStr,
+          package: 'prepay_id='+json.data.pay.prepay_id,
           signType: 'MD5',
-          paySign: pay.data.paySign,
+          paySign: json.data.pay.paySign,
           success: function (res) {
             setTimeout(() => {
               //支付成功 关闭loadding 跳转到支付成功页面
