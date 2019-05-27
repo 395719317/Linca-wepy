@@ -27,8 +27,8 @@
               <navigator   open-type="navigate" url="/pages/goods_detail2?pid={{item.product_id}}&gid={{item.goods_id}}&index={{index}}&type=gg" hover-class="none">
                 <view data-index="{{index}}" class="item {{type_index==index?'active':''}}" @tap="select_type" >{{item.sgp_name}}</view>
               </navigator>
-
             </block>
+            <view wx:if="{{detail.sgp_list.length==0}}" class="title">无权限购买</view>
           </view>
         </view>
         <view class="num f_start">
@@ -116,7 +116,7 @@
       <navigator class="s_cart" open-type="switchTab" url="/pages/shop_cart">
       </navigator>
       <view class="a_cart" bindtap="addOrder">加入购物车</view>
-      <view class="b_now" @tap="goPay">立即购买</view>
+      <view class="b_now" @tap="toPayOrder">立即购买</view>
     </view>
   </view>
 
@@ -140,6 +140,7 @@
       gid:"",
       pid:"",
       mid:"",
+      price:0,
       openid:"",
       detail: {},
       nav_act:"g_dec",
@@ -176,9 +177,14 @@
             open_id:this.openid
           }
         });
-        this.pid=json.data.sgp_list[0].product_id||'';
+        if(json.data.sgp_list.length>0){
+          this.pid=json.data.sgp_list[0].product_id||'';
+        }
+
       }
       this.detail=json.data;
+      this.price=this.detail.price;
+      console.log('price',this.price);
       if(this.detail.content.indexOf('src="/ueditor')!=-1){
           let str=this.detail.content;
           str=str.replace(/\<img/g,'<img class="dec_img" ');
@@ -199,16 +205,27 @@
 
     }
 
-    async goPay(){
-      console.log('[{ \'product_id\':'+this.pid + ',' + '\'num\':' + this.order_num + '}]');
-      let json = await api.wxBuy({
-        query: {
-          m_id:this.mid,
-          open_id:this.openid,
-          tbuys:'prods',
-          items:'[{ \"product_id\":'+this.pid + ',' + '\"num\":' + this.order_num + '}]'
-        }
-      });
+    toPayOrder() {
+      let checkList=[];
+      let ListStr='';
+      let orderInfo={};
+      let obj={};
+          obj.num = this.order_num;
+          obj.product_id = this.pid;
+          obj.cart_id = this.gid;
+          checkList.push(obj);
+      if (this.order_num==0) {
+        tip.alert("添加商品数量");
+        return;
+      }
+      ListStr = JSON.stringify(checkList);
+      orderInfo={'orderList':ListStr,'tbuys':'prods','open_id':this.openid,'m_id':this.mid};
+      wepy.setStorageSync(
+        'orderInfo',orderInfo
+      );
+      wepy.navigateTo({
+        url: "/pages/comfire_order?list=" + ListStr+"&tbuys=prods&open_id="+this.openid+"&m_id="+this.mid+"&gid="+this.gid+"&num="+this.order_num
+      })
     }
     components = {}
 
