@@ -90,7 +90,7 @@
           });
           if (rlt.data.Success) {
             let data = rlt.data;
-            if(!rlt.data.mid==0){
+            if(rlt.data.mid==0){
               if (data.openid) {
                 wepy.setStorageSync(USER_SPECICAL_INFO, data);
                 wepy.navigateTo({
