@@ -83,7 +83,7 @@ import discoverJson from '@/utils/json/discoverJson';
 
 export default class Home extends wepy.page {
   config = {
-    navigationBarTitleText: '翻洋购',
+    navigationBarTitleText: '千品百惠',
   };
   components = {
     discover: Discover,
@@ -154,7 +154,7 @@ export default class Home extends wepy.page {
         // 来自页面内转发按钮
       }
       return {
-        title: '素洁服装厂',
+        title: '千品百惠跨境商城',
         path: '/pages/home',
         success: function(res) {
           // 转发成功
