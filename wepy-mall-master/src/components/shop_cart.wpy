@@ -10,7 +10,7 @@
           <view class="goods-info">
             <icon class="icon_check" type="success" color="{{item.ischecked?'red':'rgb(153,153,153)'}}" @tap.stop="selectTap" data-index="{{index}}" data-id="{{item.id}}" size="20" />
             <view class="img-box">
-              <image src="{{item.thumLogo}}" class="img" />
+              <image src="{{apiMall}}{{item.imgurl}}" class="img" />
             </view>
             <view class="text-box">
               <view class="goods-title">
@@ -26,8 +26,8 @@
               <view class="goods-price">¥ {{item.price}}</view>
               <view class="buy-num">
                 <view class="jian-btn {{item.num==1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}" data-id="{{item.id}}">-</view>
-                <input type="number" value="{{item.num}}" bindinput="modifyNum"  data-id="{{item.id}}" data-index="{{index}}"   />
-                <view class="jia-btn {{item.num==1000? 'disabled' : ''}}" catchtap="jiaBtnTap" data-index="{{index}}" data-id="{{item.id}}">+</view>
+                <input type="number" value="{{item.num}}" bindinput="modifyNum" data-stock="{{item.stock}}"  data-id="{{item.id}}" data-index="{{index}}"   />
+                <view class="jia-btn {{item.num==1000? 'disabled' : ''}}" catchtap="jiaBtnTap" data-stock="{{item.stock}}" data-index="{{index}}" data-id="{{item.id}}">+</view>
               </view>
             </view>
           </view>
@@ -79,8 +79,9 @@
       noSelect: false,
       saveHidden: true,
       totalPrice: 0,
-      operating: false,
-      allChecked: false
+      // operating: false,
+      allChecked: false,
+      apiMall:''
     }
     //获取购物车商品列表
     async getCartList() {
@@ -109,7 +110,8 @@
     }
     onLoad() {
       let that = this;
-      this.operating = false;
+      // this.operating = false;
+      this.apiMall=api.apiMall;
     }
     computed = {}
     async reduceGoodNum(id, num, index) {
@@ -127,7 +129,7 @@
         if(this.list[index].ischecked){
           this.totalPrice = this.totalPrice - this.list[index].price;
         }
-        this.operating = false;
+        // this.operating = false;
       } else {
         tip.error(json.data.msg)
       }
@@ -148,7 +150,7 @@
           if(this.list[index].ischecked) {
             this.totalPrice = parseInt(this.totalPrice) + parseInt(this.list[index].price);
           }
-        this.operating = false;
+        // this.operating = false;
       } else {
         tip.error(json.data.msg)
       }
@@ -232,10 +234,20 @@
 
     methods = {
        modifyNum(e){
-         var id = e.currentTarget.dataset.id;
-         var index = parseInt(e.currentTarget.dataset.index);
-         var num = e.detail.value;
-         this.modifyGoodNum(id, num, index);
+         let id = e.currentTarget.dataset.id;
+         let stock = e.currentTarget.dataset.stock;
+         let index = parseInt(e.currentTarget.dataset.index);
+         let num = e.detail.value;
+         if(num<1){
+
+            num=1;
+           this.modifyGoodNum(id, num, index);
+           setTimeout(function(){ tip.content("数量不能小于1"); }, 100);
+         } else if(num>stock){
+           tip.content("数量不能大于库存");
+         }else{
+           this.modifyGoodNum(id, num, index);
+         }
       },
       handleDelItem(itemData,e) {
         console.log('fathere',e);
@@ -269,10 +281,10 @@
         this.getCartList();
       },
       jianBtnTap(e) {
-        if (this.operating) {
-          return;
-        }
-        this.operating = true;
+        // if (this.operating) {
+        //   return;
+        // }
+        // this.operating = true;
         var id = e.currentTarget.dataset.id;
         var index = parseInt(e.currentTarget.dataset.index);
         var num = this.list[index].num;
@@ -280,21 +292,28 @@
         if (num > 1) {
           num--;
         } else {
+          tip.content("数量不能少于1");
           return;
         }
         this.reduceGoodNum(id, num, index);
       },
       jiaBtnTap(e) {
-        if (this.operating) {
-          return;
-        }
-        this.operating = true;
-        var id = e.currentTarget.dataset.id;
-        var index = parseInt(e.currentTarget.dataset.index);
-        var num = this.list[index].num;
+        // if (this.operating) {
+        //   return;
+        // }
+        // this.operating = true;
+        let id = e.currentTarget.dataset.id;
+        let stock = e.currentTarget.dataset.stock;
+        let index = parseInt(e.currentTarget.dataset.index);
+        let num = this.list[index].num;
         // 自增
-        num++;
-        this.addGoodNum(id, num, index);
+        if (num < stock){
+             num ++ ;
+             this.addGoodNum(id, num, index);
+        }else{
+          tip.content("数量不能超过库存");
+        }
+
       },
       toPayOrder() {
         let checkList=[];
