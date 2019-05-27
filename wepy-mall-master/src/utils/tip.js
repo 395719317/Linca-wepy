@@ -81,6 +81,18 @@ export default class Tips {
   }
 
   /**
+   * 内容提示
+   */
+  static content(title) {
+    wx.showToast({
+      title: title,
+      mask: true,
+      icon: 'none',
+      duration: 1500
+    });
+  }
+
+  /**
    * 错误框
    */
 
