@@ -11,9 +11,10 @@ export default class extends wepy.app {
   config = {
     pages: [
       'pages/authorize',
+      'pages/home',
       'pages/order',
       'pages/applyAfterSale',
-      'pages/home',
+      'pages/afterSaleDetail',
       'pages/shop_cart',
       'pages/home_detail',
       'pages/classify',
