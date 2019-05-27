@@ -100,6 +100,7 @@ export default class ComfireOrder extends wepy.page {
     ids:"",
     items:[],
     list: [],
+    num:1,
     liststr:'',
     goodsId: "",
     //卖家留言
@@ -130,7 +131,8 @@ export default class ComfireOrder extends wepy.page {
         open_id: this.m_id,
         m_id: this.m_id,
         tbuys:this.tbuys,
-        ids:this.list.join(",")
+        ids:this.list.join(","),
+        num:this.num
       }
     });
     if (json.data.code == 0) {
@@ -139,10 +141,7 @@ export default class ComfireOrder extends wepy.page {
       this.totalPrice = data.totalPrice;
       this.actualPrice = data.total_all;
       if(this.addrs_id==undefined||this.addrs_id==null||this.addrs_id==''){
-        console.log('data.adds',data.adds);
-
         this.curAddrs_id=data.adds.addres_id;
-        console.log('curAddrs_id',this.curAddrs_id);
         this.address = data.adds;
         that.$apply();
       }
@@ -204,8 +203,9 @@ export default class ComfireOrder extends wepy.page {
     this.reduce_fee = 0;
     this.operating = false;
     this.liststr = option.list;
-    console.log(this.liststr.length);
-    console.log(this.liststr);
+    if(option.num!=undefined&&option.num!=null&&option.num!=""){
+      this.num = option.num;
+    }
     that.goodsId = option.goodsId==undefined?"":option.goodsId;
     this.purchaseType = option.purchasetype==undefined?"1":option.purchasetype;
     let optionObj=JSON.parse(option.list);
@@ -250,22 +250,15 @@ export default class ComfireOrder extends wepy.page {
         }, 2000)
         return;
       }
-      //保存成功了后进行微信支付
-      const pay = await api.toPay({
-        query:{
-          openId: openId,
-          orderNo: json.data.tradeNo
-        }
-      });
-      if (pay.data.code==0) {
+      if (json.data.code==0) {
         //以下是微信支付
         wx.requestPayment({
-          appId: pay.data.appId,
-          timeStamp: pay.data.timeStamp,
-          nonceStr: pay.data.nonceStr,
-          package: pay.data.package,
+          appId:'wx713756582acec099',
+          timeStamp: json.data.pay.timeStamp,
+          nonceStr: json.data.pay.nonceStr,
+          package: 'prepay_id='+json.data.pay.prepay_id,
           signType: 'MD5',
-          paySign: pay.data.paySign,
+          paySign: json.data.pay.paySign,
           success: function (res) {
             setTimeout(() => {
               //支付成功 关闭loadding 跳转到支付成功页面
