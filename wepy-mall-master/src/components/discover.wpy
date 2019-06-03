@@ -4,9 +4,10 @@
 
     <view class="sort_list" wx:for="{{list}}" wx:key="item">
       <view class="sort_title">
+        <view class="sort_icon"></view>
         <view class="sort_name">{{item.categoryname}}</view>
         <view class="sort_more">
-          <navigator url="/pages/search?cateCode={{item.cateCode}}&title={{item.categoryname}}">查看更多></navigator>
+          <navigator url="/pages/search?cateCode={{item.cateCode}}&title={{item.categoryname}}">查看更多<view class="angle">︿</view></navigator>
         </view>
       </view>
       <view >
@@ -54,12 +55,28 @@
   }
 </script>
 <style lang="less">
+  .angle{
+    float: right;
+    transform:rotate(90deg);
+    margin-left:5rpx;
+  }
   .home_sort {
     .sort_title {
       height: 80rpx;
       border-bottom: 3px solid #f5f5f5;
       line-height: 80rpx;
       padding: 0 30rpx 0 80rpx;
+      position: relative;
+      .sort_icon{
+        position: absolute;
+        top:17rpx;
+        left:10rpx;
+        width:50rpx;
+        height:40rpx;
+        background:url("http://www.gopingtan.com/mobile/images/jd-sprites.png") no-repeat;
+        background-position: -10rpx -360rpx;
+        background-size: 500rpx 500rpx;
+      }
 
       .sort_name {
         float: left;
@@ -69,7 +86,7 @@
       }
     }
     .sort_list {
-      border-top: 20rpx solid #f5f5f5;
+      border-top: 10rpx solid #f5f5f5;
       .sort_item {
         background-color: white;
         display:inline-block;
@@ -81,15 +98,22 @@
         .discover_img {
           text-align: center;
           image {
-            width: 300rpx;
-            height: 300rpx;
+            margin-top:10rpx;
+            margin-bottom:10rpx;
+            width: 350rpx;
+            height: 350rpx;
           }
         }
+        .info{
+          margin:10rpx 0;
+        }
         .info_text {
+          padding:0 15rpx;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
           text-align: center;
+          font-size: 25rpx;
         }
         .info_price {
           text-align: center;

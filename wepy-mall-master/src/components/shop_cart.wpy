@@ -98,11 +98,10 @@
       });
       if (json.data.code == 0) {
         let data = json.data;
-        this.list = data.items;
+        this.list = data.items||[];
         for (var i = 0; i < this.list.length; i++) {
           this.list[i].ischecked=false;
         }
-        console.log('testischecked',this.list);
       } else {
         tip.error(json.data.msg)
       }

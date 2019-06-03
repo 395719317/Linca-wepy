@@ -198,7 +198,6 @@ export default class orderItem extends wepy.component {
 </script>
 <style lang="less">
 .order_item {
-  padding: 10rpx 0rpx;
   background: #f7f7f7;
   margin-bottom: 30rpx;
   .title {

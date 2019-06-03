@@ -198,7 +198,7 @@ export default class Home extends wepy.page {
     background: white;
     margin-top:20rpx;
     display: block;
-    height:150rpx;
+    height:180rpx;
     border-top:10rpx solid #f5f5f5;
     padding-top:20rpx;
     .nav_icon{
@@ -207,11 +207,13 @@ export default class Home extends wepy.page {
      }
     image{
       display: block;
-      margin: 0 auto;
-      width:110rpx;
-      height:110rpx;
+      margin: 20rpx auto;
+      width:85rpx;
+      height:85rpx;
+
     }
     .nav_text{
+      font-size:25rpx;
       text-align: center;
     }
   }

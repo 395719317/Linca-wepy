@@ -39,6 +39,14 @@ export default class AddressList extends wepy.component {
     addressList: {
       default: [],
       type: Object
+    },
+    tbuys:{
+      default:"",
+      type: String
+    },
+    ids:{
+      default:"",
+      type: String
     }
   }
   components = {
@@ -47,7 +55,7 @@ export default class AddressList extends wepy.component {
 
   data = {
     receiverInfo:{},
-    type: ""
+    type: "cartbuy"
   }
 
   //删除地址
@@ -72,7 +80,11 @@ export default class AddressList extends wepy.component {
     }
     that.showLoading = false;
   }
+
   methods = {
+    setOrgType (type) {
+      this.type=type;
+    },
     add() {
       //0 列表 1新增 2编辑
       this.$emit('currentPage', 1);
@@ -94,25 +106,23 @@ export default class AddressList extends wepy.component {
       this.$apply();
     },
 
-    setOrgType (type) {
-      this.type=type;
-    },
-
     tapSelAddress(e) {
-      // if (this.type!="order") {
-      //   return;
-      // }
+      if(this.type){
+        return;
+      }
       var id = e.currentTarget.dataset.id;
       wepy.setStorageSync(ADDRESS_ID,id);
       let orderInfo = wepy.getStorageSync('orderInfo') || {};
+      console.log('addListinfo',orderInfo);
+      console.log('addListTbuys',this.tbuys);
+      console.log('addListIds',this.ids);
       wepy.redirectTo({
-        url: "/pages/comfire_order?list=" + orderInfo.orderList+"&tbuys=cartbuy&open_id="+orderInfo.open_id+"&m_id="+orderInfo.m_id+"&adds_id="+id
+        url: "/pages/comfire_order?list=" + orderInfo.orderList+"&tbuys="+this.tbuys+"&open_id="+orderInfo.open_id+"&m_id="+orderInfo.m_id+"&adds_id="+id+"&gid="+this.ids
       })
     }
   }
 
   onLoad() {
-
   }
 }
 

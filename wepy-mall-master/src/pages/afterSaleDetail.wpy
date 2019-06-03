@@ -1,7 +1,7 @@
 <template>
   <view class="container">
     <view>
-      <view class="orderNum">售后编号:2019042800003</view>
+      <view class="orderNum">售后编号:{{json.caseNo}}</view>
       <view>
         <repeat for="{{goodsList}}">
           <view class="item f_float" >
@@ -12,8 +12,8 @@
               <view class="goods_text">{{item.name}}</view>
               <view class="goods_num">货号：{{item.sn_code}}</view>
               <view class="f_float item_num">
-                <view class="price">￥{{item.prods_price}}</view>
-                <view class="num f_float">x1</view>
+                <view class="price">￥{{item.case_price}}</view>
+                <view class="num f_float">x{{item.case_num}}</view>
               </view>
             </view>
           </view>
@@ -21,17 +21,22 @@
       </view>
 
       <view class="total">
-        <text class="total_price" space="ensp">退款金额: ￥{{total}}     运费: ￥{{freight}}</text>
+        <text class="total_price" space="ensp">退款金额: ￥{{json.prods_price}}     运费: ￥{{json.trans_price==null?'0.00':json.trans_price}}</text>
       </view>
     </view>
-
 
     <view class="apply_detail">
         <view class="f_float detail_head">
           <view>售后申请提交</view>
-          <view class="detail_time">2019-01-19 14:35:42</view>
+          <view class="detail_time">{{json.casetime}}</view>
         </view>
-        <view class="detail_text">用户申请退款，退款原因：重拍；金额：￥65.00；运费：0.00</view>
+        <view class="detail_text">
+          <view>用户申请退款</view>
+          <view>退款原因:{{json.case_note}}</view>
+          <view>金额:￥{{json.prods_price}}</view>
+          <view>运费:{{json.trans_price==null?'0.00':json.trans_price}}</view>
+        </view>
+
     </view>
 
   </view>
@@ -56,6 +61,12 @@
     }
     components = {}
     data = {
+      json:{},
+      caseNo:'',
+      casetime:'',
+      case_note:'',
+      prods_price:'',
+      trans_price:'',
       orders_id:"",
       goodsList: [],
       submitList:[],
@@ -78,13 +89,14 @@
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
       let openid = userSpecialInfo.openid;
       let mid = userSpecialInfo.mid;
-      const json = await api.getAfterSale({
+      const json = await api.caseInfo({
         query: {
           open_id: openid,
           m_id: mid,
           id: id
         }
       });
+      this.json=json.data;
       if(json.data.items.length>0){
         this.goodsList=json.data.items;
       }

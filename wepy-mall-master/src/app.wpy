@@ -11,8 +11,8 @@ export default class extends wepy.app {
   config = {
     pages: [
       'pages/authorize',
-      'pages/home',
       'pages/order',
+      'pages/home',
       'pages/applyAfterSale',
       'pages/afterSaleDetail',
       'pages/shop_cart',
@@ -20,7 +20,6 @@ export default class extends wepy.app {
       'pages/classify',
       'pages/info',
       'pages/search',
-      'pages/test',
       'pages/sign_in',
       'pages/exchange_goods',
       'pages/wholesale',
@@ -37,6 +36,7 @@ export default class extends wepy.app {
       'pages/goods_detail',
       'pages/goods_detail2',
       'pages/comfire_order',
+      'pages/comfire_buy',
       'pages/address',
       'pages/order_detail',
       'pages/filter',

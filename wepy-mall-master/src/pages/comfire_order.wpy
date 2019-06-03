@@ -2,9 +2,9 @@
 <template>
   <view class="comfire_order">
     <view class="address" >
-      <view class="empty_address" wx:if="{{hasAdd==0}}">
+      <view class="empty_address" wx:if="{{hasAdd==0}}" @tap="goAddress">
         <view class="title">设置收货地址</view>
-        <view class="arrow">&gt;</view>
+        <view class="arrow"  @tap="goAddress">&gt;</view>
       </view>
       <view class="address_info" wx:else>
         <view class="title">
@@ -105,7 +105,7 @@ export default class ComfireOrder extends wepy.page {
     goodsId: "",
     //卖家留言
     sellerMessage: "",
-
+    hasAdd:0,
     //是否存在默认地址
     address: {},
     //总价
@@ -131,7 +131,7 @@ export default class ComfireOrder extends wepy.page {
         open_id: this.m_id,
         m_id: this.m_id,
         tbuys:this.tbuys,
-        ids:this.list.join(","),
+        ids:this.ids,
         num:this.num
       }
     });
@@ -141,11 +141,13 @@ export default class ComfireOrder extends wepy.page {
       this.totalPrice = data.totalPrice;
       this.actualPrice = data.total_all;
       if(this.addrs_id==undefined||this.addrs_id==null||this.addrs_id==''){
-        this.curAddrs_id=data.adds.addres_id;
-        this.address = data.adds;
-        that.$apply();
+        if(data.adds!=null||data.adds!=undefined){
+          this.curAddrs_id=data.adds.addres_id;
+          this.address = data.adds;
+          this.hasAdd=data.adds.addres_id.length;
+          that.$apply();
+        }
       }
-      this.hasAdd = Object.keys(data.adds).length;
       this.total_jf_num = data.userScore;
       this.can_use_score = data.canUseScore;
       this.deduScore = data.deduScore;
@@ -192,7 +194,7 @@ export default class ComfireOrder extends wepy.page {
     this.open_id=option.open_id;
     this.m_id=option.m_id;
     this.tbuys=option.tbuys;
-    this.addrs_id=option.adds_id
+    this.addrs_id=option.adds_id;
     this.actualPrice = 0;
     this.totalPrice = 0;
     this.total_jf_num = 0;
@@ -203,6 +205,7 @@ export default class ComfireOrder extends wepy.page {
     this.reduce_fee = 0;
     this.operating = false;
     this.liststr = option.list;
+
     if(option.num!=undefined&&option.num!=null&&option.num!=""){
       this.num = option.num;
     }
@@ -212,7 +215,13 @@ export default class ComfireOrder extends wepy.page {
     for(let i=0;i<optionObj.length;i++){
       this.list.push(optionObj[i].cart_id);
     }
+    if(option.tbuys=='prods'){
+      this.ids=option.gid;
+    }else{
+      this.ids=this.list.join(",")
+    }
     if(this.addrs_id!=undefined&&this.addrs_id!=null&&this.addrs_id!=''){
+      this.hasAdd=1;
       this.getAddressInfo(this.addrs_id);
     }
     that.getOrderDetailInfo();
@@ -231,8 +240,8 @@ export default class ComfireOrder extends wepy.page {
       query: {
         open_id: openId,
         m_id:mid,
-        tbuys:'cartbuy',
-        cus_note:'111',
+        tbuys:this.tbuys,
+        cus_note:this.sellerMessage,
         items:this.liststr,
         addres_id:this.curAddrs_id
       }
@@ -390,14 +399,19 @@ export default class ComfireOrder extends wepy.page {
       let addrid=e.target.dataset.addrid;
       let addrcur=e.target.dataset.cur;
       wepy.navigateTo({
-        url: "/pages/address?addrid="+addrid+"&addrcur="+addrcur
+        url: "/pages/address?addrid="+addrid+"&addrcur="+addrcur+"&ids="+this.ids
+      })
+    },
+    goAddress(e){
+      wepy.navigateTo({
+        url: "/pages/address?tbuys="+this.tbuys+"&ids="+this.ids
       })
     },
     editAddress(e) {
       let addrid=e.target.dataset.addrid;
       let addrcur=e.target.dataset.cur;
       wepy.navigateTo({
-        url: "/pages/address?addrid="+addrid+"&addrcur="+addrcur
+        url: "/pages/address?addrid="+addrid+"&addrcur="+addrcur+"&tbuys="+this.tbuys
       })
     },
     jianBtnTap(e) {

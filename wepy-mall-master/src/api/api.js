@@ -203,6 +203,9 @@ const getAfterSale=(params) => wxRequest(params, apiMall + 'api/wxapp/order.php?
 //申请售后
 const addAfterSale=(params) => wxRequest(params, apiMall + 'api/wxapp/order.php?do=addcase');
 
+//售后详情页
+const caseInfo=(params) => wxRequest(params, apiMall + 'api/wxapp/order.php?do=caseinfo');
+
 //取消订单
 const cancelOrder=(params) => wxRequest(params, apiMall + 'api/wxapp/order.php?do=order_cancel');
 
@@ -281,5 +284,6 @@ export default {
   getAfterSale,
   getOrderList,
   cancelOrder,
-  orderBuy
+  orderBuy,
+  caseInfo
 }

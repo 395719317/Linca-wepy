@@ -1,7 +1,7 @@
 <!--地址管理-->
 <template>
   <view class="{{currentPage==0?'':'hidden'}}">
-    <addressList :list.sync="addressList" @currentPage.user="getCurrentPage"></addressList>
+    <addressList :list.sync="addressList" :tbuys.sync="tbuys" :ids.sync="ids" @currentPage.user="getCurrentPage"></addressList>
   </view>
   <view class="{{currentPage==1?'':'hidden'}}">
     <addressAdd :addrcur.sync="currentPage"  @currentPage.user="getCurrentPage"></addressAdd>
@@ -25,12 +25,14 @@ export default class Address extends wepy.page {
     navigationBarTitleText: '地址管理',
   }
   data = {
+    type:false,//为true是从个人中心的地址管理点进来的,false是订单页点进来的
     addressList: [],
     receiverInfo:{},
     addrid:"",
+    ids:"",
+    tbuys:"cartbuy",
     //显示当前组件 0 列表 1新增 2编辑
-    currentPage: 0,
-    type: "" //哪个页面跳转过来的
+    currentPage: 0
   }
 
   //地址列表的实现
@@ -92,15 +94,18 @@ export default class Address extends wepy.page {
 
   onLoad(option) {
     this.currentPage = option.addrcur;
+    this.type = option.type;
+    this.tbuys=option.tbuys;
     this.addrid=option.addrid;
+    this.ids=option.ids;
     if(option.addrcur=="2"){
       this.receiverInf(option.addrid);
       this.addrid='';
     }
     this.getUserAddress();
-    this.type = (option.type==undefined?"":option.type);
     this.$invoke("addressList","setOrgType", this.type);
     this.$apply();
+
   }
 
   onShow(){
@@ -119,18 +124,12 @@ export default class Address extends wepy.page {
     }
   }
   onUnload() {
-    // if (this.currentPage !== 0) {
-    //   wx.navigateTo({
-    //     url: "/pages/address"
-    //   })
-    // }
   }
   events = {
       refreshAddList(msg){
           this.getUserAddress();
       }
   }
-
 }
 
 </script>

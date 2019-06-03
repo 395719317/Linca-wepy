@@ -130,7 +130,7 @@ export default class Counter extends wepy.component {
       console.log('3e',e);
       item = JSON.parse(JSON.stringify(item));
       console.log('deb',item);
-      delete item.style
+      delete item.style;
       console.log('dea',item);
       this.$emit('delItem', item,e)
     }

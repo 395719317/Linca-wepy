@@ -46,8 +46,8 @@
         <view class="nav_title f_start">
           <view class="{{nav_act=='g_dec'?'active':''}}" data-key="g_dec"  @tap="select_nav">商品介绍</view>
           <view class="{{nav_act=='b_record'?'active':''}}" data-key="b_record"  @tap="select_nav">购买纪录({{detail.order_records.length}})</view>
-          <view class="{{nav_act=='b_node'?'active':''}}" data-key="b_node"  @tap="select_nav">购买须知</view>
-          <view class="{{nav_act=='r_product'?'active':''}}" data-key="r_product"  @tap="select_nav">推荐商品</view>
+          <view class="{{nav_act=='b_node'?'active':''}}" style="border:none" data-key="b_node"  @tap="select_nav">购买须知</view>
+          <!--<view class="{{nav_act=='r_product'?'active':''}}" data-key="r_product"  @tap="select_nav">推荐商品</view>-->
         </view>
         <view class="nav_des f_start">
           <view>品牌：{{detail.pp}}</view>
@@ -224,7 +224,7 @@
         'orderInfo',orderInfo
       );
       wepy.navigateTo({
-        url: "/pages/comfire_order?list=" + ListStr+"&tbuys=prods&open_id="+this.openid+"&m_id="+this.mid+"&gid="+this.gid+"&num="+this.order_num
+        url: "/pages/comfire_order?list=" + ListStr+"&tbuys=prods&open_id="+this.openid+"&m_id="+this.mid+"&gid="+this.pid+"&num="+this.order_num
       })
     }
     components = {}
@@ -358,7 +358,7 @@
       padding-bottom:20rpx;
       .nav_title{
         >view{
-          width:25%;
+          width:33%;
           height:60rpx;
           text-align: center;
           border-right:1rpx solid #ccc;

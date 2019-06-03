@@ -24,7 +24,7 @@
         </view>
         <view class="arrow">&gt;</view>
       </navigator>
-      <navigator class="item" url="/pages/address">
+      <navigator class="item" url="/pages/address?type=true">
         <view class="item_content">
           <image class="item_img" src="../images/icon_my_02.png"></image>
           <view class="text">收货地址</view>
@@ -74,6 +74,7 @@
 <script>
 import wepy from 'wepy';
 import api from '@/api/api';
+import tip from '@/utils/tip'
 import {
   USER_INFO,USER_SPECICAL_INFO
 } from '@/utils/constant';
@@ -90,28 +91,6 @@ export default class Index extends wepy.page {
     nickName: "",
     bShowBind:false
   }
-  async getUserInfo(phone,code) {
-    let that = this;
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let openId = userSpecialInfo.openid;
-    const json = await api.getUserInfo({
-      query: {
-        openId: openId
-      }
-    });
-
-    if (json.data.code == 0) {
-      if (json.data.user.mobile.length>0) {
-        this.bShowBind=false;
-      } else {
-        this.bShowBind = true;
-      }
-      that.$apply();
-    } else {
-      tip.error(json.data.msg)
-    }
-    that.showLoading = false;
-  }
 
   onLoad() {
     let that = this;
@@ -121,7 +100,6 @@ export default class Index extends wepy.page {
   }
   onShow(){
     let that = this;
-    this.getUserInfo();
   }
   computed = {
 
