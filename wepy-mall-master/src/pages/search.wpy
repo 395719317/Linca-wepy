@@ -2,9 +2,13 @@
   <view class="container">
     <view>
       <scroll-view class="category_scroll"  scroll-x scroll-with-animation="true">
-        <navigator class="category_list {{item.shows?'select':''}}"  wx:for="{{categoryList}}"  wx:key="item"  url="/pages/search?cateCode={{item.code}}&title={{item.name}}">
-          <view    data-code="{{item.code}}">{{item.name}}</view>
-        </navigator>
+        <!--<navigator class="category_list {{item.shows?'select':''}}"  wx:for="{{categoryList}}"  wx:key="item"  url="/pages/search?cateCode={{item.code}}&title={{item.name}}">-->
+          <!--<view    data-code="{{item.code}}">{{item.name}}</view>-->
+        <!--</navigator>-->
+
+        <view class="category_list" wx:for="{{categoryList}}" wx:key="item" >
+          <view  class="category_item {{index==idx?'select':''}}" data-index="{{index}}"  data-code="{{item.code}}" @tap="selTag" data-catecode="{{item.code}}" data-title="{{item.name}}">{{item.name}}</view>
+        </view>
 
       </scroll-view>
     </view>
@@ -77,7 +81,8 @@
       sort: -1,
       title: "",
       skuval: "",
-      categoryList:[]
+      categoryList:[],
+      idx:""
     };
     async getKeyWordHisList() {
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
@@ -107,6 +112,11 @@
         this.doSearchGoods(this.cateCode);
         this.title = "" + option.title;
         this.setTitle("" + option.title);
+        for(let i in this.categoryList){
+          if(this.categoryList[i].shows){
+            this.idx = i;
+          }
+        }
       } else { //搜索进入
         this.$invoke('search', 'show', "1");
         this.show = true;
@@ -167,6 +177,13 @@
     }
     methods = {
       changeCategory(e){
+      },
+      selTag(e){
+        this.cateCode = e.currentTarget.dataset.catecode;
+        this.title=e.currentTarget.dataset.title;
+        this.idx=e.currentTarget.dataset.index;
+        this.setTitle( this.title);
+        this.doSearchGoods(this.cateCode);
       },
       doSearch(val) {
         this.list = [];
@@ -273,6 +290,9 @@
       height:58rpx;
       margin:0 30rpx;
       font-size:35rpx;
+      .category_item{
+        height:56rpx;
+      }
     }
     .select{
       color: #00b4ff;

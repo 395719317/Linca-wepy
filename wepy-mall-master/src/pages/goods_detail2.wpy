@@ -24,9 +24,10 @@
           <view class="f_start">
               <view class="title">规格：</view>
             <block wx:for="{{detail.sgp_list}}" key="item" item="item" wx:key="key" >
-              <navigator   open-type="navigate" url="/pages/goods_detail2?pid={{item.product_id}}&gid={{item.goods_id}}&index={{index}}&type=gg" hover-class="none">
-                <view data-index="{{index}}" class="item {{type_index==index?'active':''}}" @tap="select_type" >{{item.sgp_name}}</view>
-              </navigator>
+              <!--<navigator   open-type="navigate" url="/pages/goods_detail2?pid={{item.product_id}}&gid={{item.goods_id}}&index={{index}}&type=gg" hover-class="none">-->
+                <!--<view data-index="{{index}}" class="item {{type_index==index?'active':''}}" @tap="select_type" >{{item.sgp_name}}</view>-->
+              <!--</navigator>-->
+              <view data-index="{{index}}" data-gid="{{item.goods_id}}" data-pid="{{item.product_id}}" data-type="gg" class="item {{type_index==index?'active':''}}" @tap="select_type">{{item.sgp_name}}</view>
             </block>
             <view wx:if="{{detail.sgp_list.length==0}}" class="title">无权限购买</view>
           </view>
@@ -147,6 +148,7 @@
       content:"",
       order_num:"1",
       type_index:"",
+      type:"",
       buy_text:"<p>1,商品本身可能无中文标签，您可以查看网站的翻译或者在线联系我们的客服；</p><p>2,同商品可能涉及到不同的仓库，因发货仓库不同，货物配送到您手中的时效会稍有区别，请以实际为准；</p><p>3,您确保订单中的收货地址、收件人姓名、手机号码等各项信息的准确性和有效性，以便商品及时、准确地发出，并随时查看个人账户 里“我的订单”的订单状态更新情况；</p><p>4 ,送货过程中如果快递员联络您未及时得到回复，此订单将被默认为您已经放弃订购，由此产生的费用或其他后果由您自行承担；</p><p>5,商品不支持任何无理由退换货，不支持无理由拒收，此类商品如果被拒收或退回，将扣除50%的订单总金额，请您务必收到货时在快递员见证下先拆包检查。 清仓商品主要是客户退换货的商品，请慎拍。有问题的及时拒收并联系客服处理，没问题再签收！（其他售后问题请参考帮助中心的售后服务）。</p>"
     }
 
@@ -154,12 +156,8 @@
       let userSpecialInfo= wepy.getStorageSync(USER_SPECICAL_INFO) || {};
       this.mid=userSpecialInfo.mid||'';
       this.openid=userSpecialInfo.openid||'';
-      this.pid=option.pid||'';
-      let type=option.type||'';
       let json={};
-      if(type=='gg'){
-        this.gid=option.gid||'';
-        this.type_index=option.index;
+      if(this.type=='gg'){
         json = await api.getPdSpeDetail({
           query: {
             goods_id: this.gid,
@@ -248,6 +246,10 @@
       },
       select_type(e){
         this.type_index=e.target.dataset.index;
+        this.pid=e.target.dataset.pid||'';
+        this.type=e.target.dataset.type||'';
+        this.gid=e.target.dataset.gid||'';
+        this.getGoodsDetail();
       },
       bindOrderNumInput(e) {
         this.order_num = e.detail.value;
