@@ -9,7 +9,7 @@
   </view>
   <view class="classify" style="height:{{windowHeight-50}}px">
     <scroll-view class="classify_catetory" scroll-y scroll-with-animation="true" style="height:{{windowHeight-50}}px">
-      <view class="name {{item.active? 'active':''}}" wx:for="{{rootcateList}}" wx:key="item" @tap="changeCate" data-code="{{item.code}}">
+      <view wx:if="{{item.name!='生活用品'&&item.name!='保健用品'}}"  class="name {{item.active? 'active':''}}" wx:for="{{rootcateList}}" wx:key="item" @tap="changeCate" data-code="{{item.code}}">
         {{item.name}}
       </view>
     </scroll-view>

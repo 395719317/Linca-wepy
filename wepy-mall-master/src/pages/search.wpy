@@ -17,7 +17,9 @@
     <filterBar wx:if="{{list.length>0||skuval !==''}}" @currentType.user="currentType"></filterBar>
     <view wx:if="{{list.length>0}}">
       <!--矩阵商品列表模块-->
-      <shopGridList :purchasetype.sync="purchasetype" :list.sync="list"></shopGridList>
+      <scroll-view scroll-y="true" class="swiper-item-box" style="height:{{winHeight - 100}}px" bindscrolltolower="onReachBottom">
+        <shopGridList :purchasetype.sync="purchasetype" :list.sync="list"></shopGridList>
+      </scroll-view>
       <!--加载更多时动画-->
       <bottomLoadMore :show.sync="showLoading" message="正在加载"></bottomLoadMore>
     </view>
@@ -77,11 +79,13 @@
       keywordhisList: [],
       cateCode: "",
       show: true,
-      sort: -1,
+      sort: "",
       title: "",
       skuval: "",
       categoryList:[],
-      idx:""
+      idx:"",
+      winHeight: 0,
+      preventRepeatReuqest:true
     };
     async getKeyWordHisList() {
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
@@ -102,13 +106,15 @@
       })
     }
     onLoad(option) {
+      let systemInfo = wepy.getStorageSync(SYSTEM_INFO);
       this.list = [];
       this.skuval = "";
       this.cateCode = option.cateCode;
+      this.winHeight = systemInfo.windowHeight;
       if (this.cateCode != undefined && this.cateCode.length > 0) { //分类进入
         this.$invoke('search', 'show', "0");
         this.show = false;
-        this.doSearchGoods(this.cateCode);
+        this.doSearchGoods();
         this.title = "" + option.title;
         this.idx=option.idx;
         this.setTitle("" + option.title);
@@ -124,25 +130,25 @@
       }
     }
     computed = {};
-    async doSearchGoods(keyword, currentPage, size) {
+    async doSearchGoods(currentPage) {
       let that = this;
       const json = await api.getGoodsList({
         query: {
           page: currentPage || 1,
-          size: size || 10,
+          size:10,
           searchKeyWords: this.keyword,
           cateCode: this.cateCode || "",
-          sort: this.sort,
-          skuval: this.skuval
+          sort: this.sort
         }
       });
       if (json.data.code == 0) {
-        that.list = [ ...json.data.list];
-        that.categoryList=json.data.category;
+        that.list = [ ...this.list,...json.data.list];
+        that.categoryList = json.data.category;
         that.page_total = json.data.page_total;
+        that.currentPage = json.data.pageNum;
+        console.log('json.data.pageNum;',json.data.pageNum);
         if (json.data.page_total == 0) {
           //暂无数据
-          console.log('search无数据');
           that.is_empty = true;
         }
       } else {
@@ -159,7 +165,7 @@
         this.title=e.currentTarget.dataset.title;
         this.idx=e.currentTarget.dataset.index;
         this.setTitle( this.title);
-        this.doSearchGoods(this.cateCode);
+        this.doSearchGoods();
       },
       doSearch(val) {
         this.list = [];
@@ -167,7 +173,7 @@
         //tip.success("搜索：" + val);
         this.showLoading = true;
         this.keyword = val;
-        this.doSearchGoods(val);
+        this.doSearchGoods();
         //this.list = bb.result.products;
         //this.$apply();
       },
@@ -176,9 +182,8 @@
         var name = obj.name;
         var type = obj.type;
         if (name == "composite") {
-          this.sort = -1;
+          this.sort = 'sort_desc';
         } else if (name == "sale") {
-          // this.sort = 3;
           if (type == "desc") {
             this.sort = "num_orders_desc";
           } else if (type == "asc") {
@@ -191,15 +196,13 @@
           } else if (type == "asc") {
             this.sort = "price_max_asc";
           }
-        } else if (name == "sku") {
-          this.skuval = type;
         }
         this.list = [];
         this.is_empty = false;
         this.showLoading = true;
         //this.$invoke('search', 'show', "0");
         this.show = false;
-        this.doSearchGoods(this.keyword);
+        this.doSearchGoods();
       },
       selHisKeyWord(e) {
         var id = e.currentTarget.dataset.id;
@@ -213,7 +216,7 @@
         }
         if (hisKeyword.length > 0) {
           this.keyword = hisKeyword;
-          this.doSearchGoods(hisKeyword);
+          this.doSearchGoods();
         }
       },
       onShareAppMessage: function(res) {
@@ -238,14 +241,10 @@
       that.showLoading = true;
       //判断总页数是否大于翻页数
       if ((that.page_total) > that.currentPage) {
-        //防止重复加载
-        if (that.preventRepeatReuqest) {
-          return true;
-        }
-        that.preventRepeatReuqest = true;
+        console.log('that.page_total',this.page_total);
         that.currentPage++;
-        that.doSearchGoods("", that.currentPage);
-        that.preventRepeatReuqest = false;
+        that.doSearchGoods(that.currentPage);
+
       } else {
         that.showLoading = false;
       }
